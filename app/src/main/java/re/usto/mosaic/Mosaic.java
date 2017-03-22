@@ -32,10 +32,6 @@ public class Mosaic extends Application {
             ep.libCreate();
             EpConfig epCfg = new EpConfig();
             ep.libInit(epCfg);
-            TransportConfig transportConfig = new TransportConfig();
-            transportConfig.setPort(5060);
-            ep.transportCreate(pjsip_transport_type_e.PJSIP_TRANSPORT_TCP, transportConfig);
-            ep.libStart();
 
             AccountConfig accountConfig = new AccountConfig();
             accountConfig.setIdUri("sip:2903@192.168.174.106");
