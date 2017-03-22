@@ -6,8 +6,6 @@ import org.pjsip.pjsua2.AccountConfig;
 import org.pjsip.pjsua2.AuthCredInfo;
 import org.pjsip.pjsua2.Endpoint;
 import org.pjsip.pjsua2.EpConfig;
-import org.pjsip.pjsua2.TransportConfig;
-import org.pjsip.pjsua2.pjsip_transport_type_e;
 
 import re.usto.mosaic.engine.MosaicAccount;
 
@@ -28,6 +26,7 @@ public class Mosaic extends Application {
     public void onCreate() {
         super.onCreate();
         try {
+
             ep = new Endpoint();
             ep.libCreate();
             EpConfig epCfg = new EpConfig();
@@ -36,7 +35,7 @@ public class Mosaic extends Application {
             AccountConfig accountConfig = new AccountConfig();
             accountConfig.setIdUri("sip:2903@192.168.174.106");
             accountConfig.getRegConfig().setRegistrarUri("sip:192.168.174.106");
-            AuthCredInfo authCredInfo = new AuthCredInfo("digest", "*", "2903", 0, "secret");
+            AuthCredInfo authCredInfo = new AuthCredInfo("digest", "*", "2904", 0, "secret");
             accountConfig.getSipConfig().getAuthCreds().add(authCredInfo);
 
             mAccount = new MosaicAccount();
