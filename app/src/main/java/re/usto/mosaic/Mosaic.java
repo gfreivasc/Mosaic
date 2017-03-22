@@ -17,6 +17,10 @@ import re.usto.mosaic.engine.MosaicAccount;
 
 public class Mosaic extends Application {
 
+    static {
+        System.loadLibrary("pjsua2");
+    }
+
     public static Endpoint ep;
     public MosaicAccount mAccount;
 
@@ -24,10 +28,13 @@ public class Mosaic extends Application {
     public void onCreate() {
         super.onCreate();
         try {
-            ep.libInit(new EpConfig());
+            ep = new Endpoint();
+            ep.libCreate();
+            EpConfig epCfg = new EpConfig();
+            ep.libInit(epCfg);
             TransportConfig transportConfig = new TransportConfig();
             transportConfig.setPort(5060);
-            ep.transportCreate(pjsip_transport_type_e.PJSIP_TRANSPORT_UDP, transportConfig);
+            ep.transportCreate(pjsip_transport_type_e.PJSIP_TRANSPORT_TCP, transportConfig);
             ep.libStart();
 
             AccountConfig accountConfig = new AccountConfig();
@@ -42,8 +49,6 @@ public class Mosaic extends Application {
         catch (Exception e) {
             e.printStackTrace();
         }
-
-        ep = new Endpoint();
     }
 
     @Override
