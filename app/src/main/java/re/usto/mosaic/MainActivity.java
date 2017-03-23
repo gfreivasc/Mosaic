@@ -1,14 +1,12 @@
 package re.usto.mosaic;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
-import org.pjsip.pjsua2.TransportConfig;
-import org.pjsip.pjsua2.pjsip_transport_type_e;
-
-import static re.usto.mosaic.Mosaic.ep;
+import re.usto.mosaic.engine.MosaicService;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -18,24 +16,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        creatingSipTransport();
+
+        Intent intent = new Intent(this, MosaicService.class);
+        intent.putExtra(MosaicService.USER_KEY, 7);
+        startService(intent);
 
         calling = (Button) findViewById(R.id.button);
 
         calling.setOnClickListener(this);
 
-    }
-
-
-
-    public void creatingSipTransport(){
-        try {
-            TransportConfig sipTpConfig = new TransportConfig();
-            sipTpConfig.setPort(5060);
-            ep.transportCreate(pjsip_transport_type_e.PJSIP_TRANSPORT_UDP, sipTpConfig);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
