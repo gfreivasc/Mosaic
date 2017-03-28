@@ -1,10 +1,17 @@
 package re.usto.mosaic.engine;
 
+import android.app.IntentService;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.IBinder;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.pjsip.pjsua2.AccountConfig;
@@ -20,9 +27,9 @@ import java.util.Locale;
  * Created by gabriel on 23/03/17.
  */
 
-public class MosaicService extends Service {
+public class MosaicService extends BackgroundService {
 
-    private static final String TAG = "MosaicService";
+    private static final String TAG = MosaicService.class.getSimpleName();
     private static final String SIP_PROTOCOL = "sip:";
     private static final String SIP_SERVER_IP = "192.168.174.106";
     private static final int SIP_SERVER_USER_BASE = 2600;
@@ -32,6 +39,10 @@ public class MosaicService extends Service {
     private MosaicAccount mAccount;
 
     public static final String USER_KEY = "userId";
+
+    public MosaicService() {
+        super(TAG);
+    }
 
     @Override
     public void onCreate() {
@@ -57,10 +68,26 @@ public class MosaicService extends Service {
             Log.e(TAG, "Error establishing transport");
             e.printStackTrace();
         }
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                new ConnectionStatusReceiver(),
+                new MosaicIntent.FilterBuilder().addConnectivityChangeAction().build()
+        );
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    protected void onReceivedIntent(@Nullable Intent intent) {
+        if (intent == null || intent.getAction() == null)
+            return;
+
+        switch (intent.getAction()) {
+            case MosaicIntent.ACTION_REGISTER_USER:
+                handleRegister(intent);
+                break;
+        }
+    }
+
+    private void handleRegister(Intent intent) {
         String userId = String.valueOf(SIP_SERVER_USER_BASE + intent.getIntExtra(USER_KEY, 0));
         Log.i(TAG, "Registering user " + userId);
         AccountConfig accountConfig = new AccountConfig();
@@ -74,27 +101,18 @@ public class MosaicService extends Service {
         AuthCredInfo authCredInfo = new AuthCredInfo("Digest", "*", userId, 0, "4567");
         accountConfig.getSipConfig().getAuthCreds().add(authCredInfo);
 
-        mAccount = new MosaicAccount();
+        mAccount = new MosaicAccount(this);
         try {
             mAccount.create(accountConfig);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             Log.e(TAG, "Error on registration.");
             e.printStackTrace();
         }
-
-        return super.onStartCommand(intent, flags, startId);
-    }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
     }
 
     @Override
     public void onDestroy() {
-        mAccount.delete();
+        if (mAccount != null) mAccount.delete();
 
         try {
             ep.libDestroy();

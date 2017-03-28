@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Mosaic</string>
+    <string name="status_off">Offline</string>
+    <string name="status_on">Connected</string>
 </resources>
