@@ -25,7 +25,7 @@ public class MosaicAccount extends Account {
     @Override
     public void onRegState(OnRegStateParam prm) {
         super.onRegState(prm);
-        Log.i(TAG, "User reg code " + prm.getCode().toString());
+        Log.v(TAG, "User reg code " + prm.getCode().toString());
 
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(
                 new MosaicIntent().updateConnectionStatus(prm.getCode())

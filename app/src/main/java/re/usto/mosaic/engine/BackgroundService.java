@@ -9,12 +9,26 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.Process;
-import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 
 /**
- * Created by gabriel on 28/03/17.
+ * BackgroundService is a base class for {@link Service}s that contain objects that must remain
+ * active even if there is no action being executed. Jobs are scheduled similarly to
+ * {@link android.app.IntentService}, but asynchronous calls (that cannot be happen from within
+ * IntentServices) are allowed here, since the context will remain active.
+ *
+ * <p>The goal of this BackgroundService class is not to hold explicit calls of
+ * {@link android.os.AsyncTask}s, but to hold objects that are bound to implicit async jobs and
+ * belong to the Service context rather then an activity and can't be defined from within the
+ * Application class, or that is constantly exchanging information with the BackgroundService.
+ *
+ * <p>Enqueued jobs are ensured to be ran in a high priority worker thread, but the service logic
+ * is ran on only one thread. The BackgroundService will remain running even if the process loses
+ * focus and the screen goes off, allowing callbacks for endpoints, for example.
+ *
+ * <p>When extending BackgroundService, make sure to define a default constructor. The implemented
+ * constructor expects the class name to name the worker thread, for debugging purposes.
  */
 
 public abstract class BackgroundService extends Service {
@@ -35,6 +49,11 @@ public abstract class BackgroundService extends Service {
         }
     }
 
+    /**
+     * Creates the BackgroundService
+     *
+     * @param name Used to name the worker thread, important only for debugging.
+     */
     public BackgroundService(String name) {
         super();
         mName = name;
