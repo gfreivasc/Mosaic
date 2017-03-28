@@ -5,11 +5,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.pjsip.pjsua2.Account;
-import org.pjsip.pjsua2.Call;
 import org.pjsip.pjsua2.OnIncomingCallParam;
 import org.pjsip.pjsua2.OnRegStateParam;
-
-import re.usto.mosaic.Mosaic;
 
 /**
  * Created by gabriel on 21/03/17.
@@ -30,7 +27,7 @@ public class MosaicAccount extends Account {
         Log.v(TAG, "User reg code " + prm.getCode().toString());
 
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(
-                new MosaicIntent().updateConnectionStatus(prm.getCode())
+                new MosaicIntent().updateRegistrationState(prm.getCode())
         );
     }
 

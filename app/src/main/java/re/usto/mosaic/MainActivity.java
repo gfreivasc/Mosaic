@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 new ConnectionStatusReceiver(),
-                new MosaicIntent.FilterBuilder().addConnectionStatusAction().build()
+                new MosaicIntent.FilterBuilder().addRegistrationStateAction().build()
         );
     }
 
@@ -48,10 +48,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.hasExtra(MosaicIntent.EXTRA_CONNECTION_STATUS)) {
+            if (intent.hasExtra(MosaicIntent.EXTRA_REGISTRATION_STATE)) {
                 String statusCode =
                         intent.getStringExtra(
-                                MosaicIntent.EXTRA_CONNECTION_STATUS);
+                                MosaicIntent.EXTRA_REGISTRATION_STATE);
 
                 switch (statusCode) {
                     case "PJSIP_SC_OK":

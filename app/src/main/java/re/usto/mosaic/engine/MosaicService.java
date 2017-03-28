@@ -73,11 +73,6 @@ public class MosaicService extends BackgroundService {
             Log.e(TAG, "Error establishing transport");
             e.printStackTrace();
         }
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(
-                new ConnectionStatusReceiver(),
-                new MosaicIntent.FilterBuilder().addConnectivityChangeAction().build()
-        );
     }
 
     @Override
@@ -89,11 +84,18 @@ public class MosaicService extends BackgroundService {
             case MosaicIntent.ACTION_REGISTER_USER:
                 handleRegister(intent);
                 break;
+
+            case MosaicIntent.ACTION_CONNECTIVITY_CHANGE:
+                handleConnectivityChange();
+                break;
         }
     }
 
     private void handleRegister(Intent intent) {
-        String userId = String.valueOf(SIP_SERVER_USER_BASE + intent.getIntExtra(USER_KEY, 0));
+        registerToServer(String.valueOf(SIP_SERVER_USER_BASE + intent.getIntExtra(USER_KEY, 0)));
+    }
+
+    private void registerToServer(String userId) {
         Log.i(TAG, "Registering user " + userId);
         AccountConfig accountConfig = new AccountConfig();
         accountConfig.setIdUri(String.format(Locale.US,
@@ -112,6 +114,15 @@ public class MosaicService extends BackgroundService {
         } catch (Exception e) {
             Log.e(TAG, "Error on registration.");
             e.printStackTrace();
+        }
+    }
+
+    private void handleConnectivityChange() {
+        try {
+            mAccount.setRegistration(true);
+        }
+        catch (Exception e) {
+            Log.e(TAG, "Error connecting to server: ", e);
         }
     }
 

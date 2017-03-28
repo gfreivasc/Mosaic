@@ -24,7 +24,7 @@ public class MosaicIntent {
             "re.usto.mosaic.INCOMING_CALL";
 
     // Extras
-    public static final String EXTRA_CONNECTION_STATUS = "extraConnectionStatus";
+    public static final String EXTRA_REGISTRATION_STATE = "extraConnectionStatus";
 
     public static class FilterBuilder {
 
@@ -34,7 +34,7 @@ public class MosaicIntent {
             filter = new IntentFilter();
         }
 
-        public FilterBuilder addConnectionStatusAction() {
+        public FilterBuilder addRegistrationStateAction() {
             filter.addAction(ACTION_UPDATE_REGISTRATION_STATE);
             return this;
         }
@@ -54,11 +54,15 @@ public class MosaicIntent {
         }
     }
 
-    Intent updateConnectionStatus(pjsip_status_code statusCode) {
+    Intent updateRegistrationState(pjsip_status_code statusCode) {
         Intent intent = new Intent();
         intent.setAction(ACTION_UPDATE_REGISTRATION_STATE);
-        intent.putExtra(EXTRA_CONNECTION_STATUS, statusCode.toString());
+        intent.putExtra(EXTRA_REGISTRATION_STATE, statusCode.toString());
         return intent;
+    }
+
+    Intent connectivityChanged() {
+        return new Intent().setAction(ACTION_CONNECTIVITY_CHANGE);
     }
 
     Intent receivingIncomingCall() {

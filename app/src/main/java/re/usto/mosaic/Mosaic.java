@@ -1,6 +1,7 @@
 package re.usto.mosaic;
 
 import android.app.Application;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.pjsip.pjsua2.AccountConfig;
@@ -8,7 +9,9 @@ import org.pjsip.pjsua2.AuthCredInfo;
 import org.pjsip.pjsua2.Endpoint;
 import org.pjsip.pjsua2.EpConfig;
 
+import re.usto.mosaic.engine.ConnectionStatusReceiver;
 import re.usto.mosaic.engine.MosaicAccount;
+import re.usto.mosaic.engine.MosaicIntent;
 
 /**
  * Created by gabriel on 21/03/17.
@@ -24,5 +27,10 @@ public class Mosaic extends Application {
     public void onCreate() {
         super.onCreate();
 
+        // Connectivity_Change broadcasts are only listened by receivers registered at main thread.
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                new ConnectionStatusReceiver(),
+                new MosaicIntent.FilterBuilder().addConnectivityChangeAction().build()
+        );
     }
 }
