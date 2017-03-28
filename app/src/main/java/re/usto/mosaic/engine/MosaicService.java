@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
@@ -16,12 +17,15 @@ import android.util.Log;
 
 import org.pjsip.pjsua2.AccountConfig;
 import org.pjsip.pjsua2.AuthCredInfo;
+import org.pjsip.pjsua2.Call;
 import org.pjsip.pjsua2.Endpoint;
 import org.pjsip.pjsua2.EpConfig;
 import org.pjsip.pjsua2.TransportConfig;
 import org.pjsip.pjsua2.pjsip_transport_type_e;
 
 import java.util.Locale;
+
+import re.usto.mosaic.IncomingCallActivity;
 
 /**
  * Created by gabriel on 23/03/17.
@@ -37,6 +41,7 @@ public class MosaicService extends BackgroundService {
     private static final String SIP_SERVER = SIP_PROTOCOL + SIP_SERVER_IP;
     private static final Endpoint ep = new Endpoint();
     private MosaicAccount mAccount;
+    private Call mCall = null;
 
     public static final String USER_KEY = "userId";
 
@@ -46,7 +51,7 @@ public class MosaicService extends BackgroundService {
 
     @Override
     public void onCreate() {
-        Log.i(TAG, "Creating service");
+        Log.i(TAG, "Creating PJSIP service");
         super.onCreate();
 
         try {
@@ -124,5 +129,26 @@ public class MosaicService extends BackgroundService {
         super.onDestroy();
     }
 
-    public String getUserKey() { return USER_KEY; }
+    public Call getCall() {
+        return mCall;
+    }
+
+    public void setCall(Call call, boolean incoming) {
+        mCall = call;
+
+        if (incoming) {
+            startActivity(new Intent(this, IncomingCallActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Log.i(TAG, "Removing call from queue.");
+                    mCall.delete();
+                    mCall = null;
+                }
+            }, 30000);
+        }
+    }
 }

@@ -20,8 +20,9 @@ import android.support.annotation.WorkerThread;
  *
  * <p>The goal of this BackgroundService class is not to hold explicit calls of
  * {@link android.os.AsyncTask}s, but to hold objects that are bound to implicit async jobs and
- * belong to the Service context rather then an activity and can't be defined from within the
- * Application class, or that is constantly exchanging information with the BackgroundService.
+ * belong to the Service context rather then an {@link android.app.Activity} and can't be defined
+ * from within {@link android.app.Application}, or that is constantly exchanging information with
+ * the BackgroundService.
  *
  * <p>Enqueued jobs are ensured to be ran in a high priority worker thread, but the service logic
  * is ran on only one thread. The BackgroundService will remain running even if the process loses
@@ -29,6 +30,8 @@ import android.support.annotation.WorkerThread;
  *
  * <p>When extending BackgroundService, make sure to define a default constructor. The implemented
  * constructor expects the class name to name the worker thread, for debugging purposes.
+ *
+ * @author gfreivasc (Gabriel Vasconcelos)
  */
 
 public abstract class BackgroundService extends Service {
@@ -39,7 +42,7 @@ public abstract class BackgroundService extends Service {
     private PowerManager.WakeLock mWakeLock;
 
     private final class BackgroundHandler extends Handler {
-        public BackgroundHandler(Looper looper) {
+        BackgroundHandler(Looper looper) {
             super(looper);
         }
 

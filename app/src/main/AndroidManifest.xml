@@ -27,12 +27,15 @@
 
         <service android:name=".engine.MosaicService" />
 
-        <receiver android:name=".MainActivity$ConnectionStatusReceiver"
+        <receiver
+            android:name=".MainActivity$ConnectionStatusReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="re.usto.mosaic.UPDATE_CONNECTION_STATUS" />
+                <action android:name="re.usto.mosaic.UPDATE_REGISTRATION_STATE" />
             </intent-filter>
         </receiver>
+
+        <activity android:name=".IncomingCallActivity"></activity>
     </application>
 
 </manifest>

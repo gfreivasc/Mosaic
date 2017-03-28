@@ -5,6 +5,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.pjsip.pjsua2.Account;
+import org.pjsip.pjsua2.Call;
+import org.pjsip.pjsua2.OnIncomingCallParam;
 import org.pjsip.pjsua2.OnRegStateParam;
 
 import re.usto.mosaic.Mosaic;
@@ -29,6 +31,22 @@ public class MosaicAccount extends Account {
 
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(
                 new MosaicIntent().updateConnectionStatus(prm.getCode())
+        );
+    }
+
+    @Override
+    public void onIncomingCall(OnIncomingCallParam prm) {
+        super.onIncomingCall(prm);
+
+        if (((MosaicService)mContext).getCall() != null) {
+            //TODO: Decline this call and notify missed call
+            return;
+        }
+
+        ((MosaicService)mContext).setCall(new MosaicCall(this, prm.getCallId()), true);
+
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(
+                new MosaicIntent().receivingIncomingCall()
         );
     }
 }
