@@ -1,19 +1,8 @@
 package re.usto.mosaic.engine;
 
-import android.app.IntentService;
-import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Handler;
-import android.os.IBinder;
-import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.pjsip.pjsua2.AccountConfig;
