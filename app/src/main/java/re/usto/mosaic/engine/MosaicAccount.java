@@ -41,9 +41,5 @@ public class MosaicAccount extends Account {
         }
 
         ((MosaicService)mContext).setCall(new MosaicCall(this, prm.getCallId()), true);
-
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(
-                new MosaicIntent().receivingIncomingCall()
-        );
     }
 }

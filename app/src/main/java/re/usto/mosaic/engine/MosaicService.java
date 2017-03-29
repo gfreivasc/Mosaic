@@ -161,16 +161,6 @@ public class MosaicService extends BackgroundService {
         if (incoming) {
             startActivity(new Intent(this, IncomingCallActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    Log.i(TAG, "Removing call from queue.");
-                    mCall.delete();
-                    mCall = null;
-                }
-            }, 30000);
         }
     }
 }
