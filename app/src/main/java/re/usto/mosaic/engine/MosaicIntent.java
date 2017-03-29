@@ -1,5 +1,6 @@
 package re.usto.mosaic.engine;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
@@ -23,8 +24,13 @@ public class MosaicIntent {
     public static final String ACTION_INCOMING_CALL =
             "re.usto.mosaic.INCOMING_CALL";
 
+    public static final String ACTION_MAKE_CALL =
+            "re.usto.mosaic.MAKE_CALL";
+
     // Extras
     public static final String EXTRA_REGISTRATION_STATE = "extraConnectionStatus";
+    public static final String EXTRA_USER_KEY = "userId";
+    public static final String EXTRA_CALL_DESTINY = "callDestiny";
 
     public static class FilterBuilder {
 
@@ -54,11 +60,16 @@ public class MosaicIntent {
         }
     }
 
+    public Intent registerUser(Context context, int userKey) {
+        return new Intent(context, MosaicService.class)
+                .setAction(ACTION_REGISTER_USER)
+                .putExtra(EXTRA_USER_KEY, userKey);
+    }
+
     Intent updateRegistrationState(pjsip_status_code statusCode) {
-        Intent intent = new Intent();
-        intent.setAction(ACTION_UPDATE_REGISTRATION_STATE);
-        intent.putExtra(EXTRA_REGISTRATION_STATE, statusCode.toString());
-        return intent;
+        return new Intent()
+                .setAction(ACTION_UPDATE_REGISTRATION_STATE)
+                .putExtra(EXTRA_REGISTRATION_STATE, statusCode.toString());
     }
 
     Intent connectivityChanged() {
@@ -67,5 +78,11 @@ public class MosaicIntent {
 
     Intent receivingIncomingCall() {
         return new Intent().setAction(ACTION_INCOMING_CALL);
+    }
+
+    public Intent makeCall(Context context, String destiny) {
+        return new Intent(context, MosaicService.class)
+                .setAction(ACTION_MAKE_CALL)
+                .putExtra(EXTRA_CALL_DESTINY, destiny);
     }
 }

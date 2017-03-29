@@ -10,7 +10,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import re.usto.mosaic.engine.MosaicService;
 import re.usto.mosaic.engine.MosaicIntent;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -23,10 +22,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Intent intent = new Intent(this, MosaicService.class);
-        intent.setAction(MosaicIntent.ACTION_REGISTER_USER);
-        intent.putExtra(MosaicService.USER_KEY, 1);
-        startService(intent);
+        startService(new MosaicIntent().registerUser(this, 1));
 
         calling = (Button) findViewById(R.id.button);
         mConnectionStatusText = (TextView) findViewById(R.id.connectionStatus);
@@ -34,23 +30,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         calling.setOnClickListener(this);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(
-                new ConnectionStatusReceiver(),
+                new RegistrationStateReceiver(),
                 new MosaicIntent.FilterBuilder().addRegistrationStateAction().build()
         );
     }
 
     @Override
     public void onClick(View v) {
-
+        startService(new MosaicIntent().makeCall(this, "2605"));
     }
 
-    public class ConnectionStatusReceiver extends BroadcastReceiver {
+    public class RegistrationStateReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.hasExtra(MosaicIntent.EXTRA_REGISTRATION_STATE)) {
-                String statusCode =
-                        intent.getStringExtra(
+                String statusCode = intent.getStringExtra(
                                 MosaicIntent.EXTRA_REGISTRATION_STATE);
 
                 switch (statusCode) {

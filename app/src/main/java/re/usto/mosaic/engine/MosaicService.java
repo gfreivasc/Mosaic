@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.IntDef;
@@ -18,6 +19,7 @@ import android.util.Log;
 import org.pjsip.pjsua2.AccountConfig;
 import org.pjsip.pjsua2.AuthCredInfo;
 import org.pjsip.pjsua2.Call;
+import org.pjsip.pjsua2.CallOpParam;
 import org.pjsip.pjsua2.Endpoint;
 import org.pjsip.pjsua2.EpConfig;
 import org.pjsip.pjsua2.TransportConfig;
@@ -42,8 +44,6 @@ public class MosaicService extends BackgroundService {
     private static final Endpoint ep = new Endpoint();
     private MosaicAccount mAccount;
     private Call mCall = null;
-
-    public static final String USER_KEY = "userId";
 
     public MosaicService() {
         super(TAG);
@@ -88,11 +88,16 @@ public class MosaicService extends BackgroundService {
             case MosaicIntent.ACTION_CONNECTIVITY_CHANGE:
                 handleConnectivityChange();
                 break;
+
+            case MosaicIntent.ACTION_MAKE_CALL:
+                handleMakeCall(intent);
+                break;
         }
     }
 
     private void handleRegister(Intent intent) {
-        registerToServer(String.valueOf(SIP_SERVER_USER_BASE + intent.getIntExtra(USER_KEY, 0)));
+        registerToServer(String.valueOf(
+                SIP_SERVER_USER_BASE + intent.getIntExtra(MosaicIntent.EXTRA_USER_KEY, 0)));
     }
 
     private void registerToServer(String userId) {
@@ -123,6 +128,25 @@ public class MosaicService extends BackgroundService {
         }
         catch (Exception e) {
             Log.e(TAG, "Error connecting to server: ", e);
+        }
+    }
+
+    private void handleMakeCall(Intent intent) {
+        if (!intent.hasExtra(MosaicIntent.EXTRA_CALL_DESTINY)) return;
+        String destUri = String.format(Locale.US,
+                "%1$s%2$s@%3$s",
+                SIP_PROTOCOL,
+                intent.getStringExtra(MosaicIntent.EXTRA_CALL_DESTINY),
+                SIP_SERVER_IP);
+
+        mCall = new Call(mAccount);
+        CallOpParam prm = new CallOpParam(true);
+        try {
+            mCall.makeCall(destUri, prm);
+        }
+        catch (Exception e) {
+            Log.e(TAG, "Error. Unable to make call: ", e);
+            mCall = null;
         }
     }
 
