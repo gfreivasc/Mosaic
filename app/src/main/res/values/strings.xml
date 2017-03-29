@@ -1,5 +1,13 @@
 <resources>
     <string name="app_name">Mosaic</string>
     <string name="status_off">Offline</string>
-    <string name="status_on">Connected</string>
+    <string name="status_on">Conectado</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <string name="pref_header_general">Geral</string>
+
+    <string name="pref_user_id_title">Ramal</string>
+    <string name="pref_user_id_key" translatable="false">pref_userId</string>
+    <string name="pref_user_id_default" translatable="false">2600</string>
+    <string name="pref_user_id_summary">Ramal ao qual o app estará registrado</string>
 </resources>

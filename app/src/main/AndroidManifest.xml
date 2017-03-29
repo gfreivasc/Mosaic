@@ -32,11 +32,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".IncomingCallActivity" />
 
-        <activity android:name=".IncomingCallActivity"></activity>
+        <activity android:name=".SettingsActivity"
+            android:parentActivityName=".MainActivity">
+        </activity>
 
         <service android:name=".engine.MosaicService" />
-
     </application>
 
 </manifest>

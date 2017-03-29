@@ -1,19 +1,9 @@
 package re.usto.mosaic.engine;
 
-import android.app.IntentService;
-import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Handler;
-import android.os.IBinder;
-import android.support.annotation.IntDef;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.pjsip.pjsua2.AccountConfig;
@@ -28,6 +18,7 @@ import org.pjsip.pjsua2.pjsip_transport_type_e;
 import java.util.Locale;
 
 import re.usto.mosaic.IncomingCallActivity;
+import re.usto.mosaic.R;
 
 /**
  * Created by gabriel on 23/03/17.
@@ -38,7 +29,6 @@ public class MosaicService extends BackgroundService {
     private static final String TAG = MosaicService.class.getSimpleName();
     private static final String SIP_PROTOCOL = "sip:";
     private static final String SIP_SERVER_IP = "192.168.174.106";
-    private static final int SIP_SERVER_USER_BASE = 2600;
     private static final int SIP_SERVER_PORT = 5060;
     private static final String SIP_SERVER = SIP_PROTOCOL + SIP_SERVER_IP;
     private static final Endpoint ep = new Endpoint();
@@ -96,8 +86,7 @@ public class MosaicService extends BackgroundService {
     }
 
     private void handleRegister(Intent intent) {
-        registerToServer(String.valueOf(
-                SIP_SERVER_USER_BASE + intent.getIntExtra(MosaicIntent.EXTRA_USER_KEY, 0)));
+        registerToServer(intent.getStringExtra(MosaicIntent.EXTRA_USER_KEY));
     }
 
     private void registerToServer(String userId) {

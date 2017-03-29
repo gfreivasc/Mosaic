@@ -60,7 +60,7 @@ public class MosaicIntent {
         }
     }
 
-    public Intent registerUser(Context context, int userKey) {
+    public Intent registerUser(Context context, String userKey) {
         return new Intent(context, MosaicService.class)
                 .setAction(ACTION_REGISTER_USER)
                 .putExtra(EXTRA_USER_KEY, userKey);

@@ -1,6 +1,7 @@
 package re.usto.mosaic;
 
 import android.app.Application;
+import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -31,6 +32,14 @@ public class Mosaic extends Application {
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 new ConnectionStatusReceiver(),
                 new MosaicIntent.FilterBuilder().addConnectivityChangeAction().build()
+        );
+        
+        startService(
+                new MosaicIntent().registerUser(this,
+                        PreferenceManager.getDefaultSharedPreferences(this).getString(
+                                getString(R.string.pref_user_id_key),
+                                getString(R.string.pref_user_id_default)
+                        ))
         );
     }
 }
