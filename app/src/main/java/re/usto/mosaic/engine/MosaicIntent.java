@@ -72,8 +72,8 @@ public class MosaicIntent {
                 .putExtra(EXTRA_REGISTRATION_STATE, statusCode.toString());
     }
 
-    Intent connectivityChanged() {
-        return new Intent().setAction(ACTION_CONNECTIVITY_CHANGE);
+    Intent connectivityChanged(Context context) {
+        return new Intent(context, MosaicService.class).setAction(ACTION_CONNECTIVITY_CHANGE);
     }
 
     Intent receivingIncomingCall() {

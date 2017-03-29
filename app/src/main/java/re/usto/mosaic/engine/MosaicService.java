@@ -2,7 +2,6 @@ package re.usto.mosaic.engine;
 
 import android.content.Intent;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -18,7 +17,6 @@ import org.pjsip.pjsua2.pjsip_transport_type_e;
 import java.util.Locale;
 
 import re.usto.mosaic.IncomingCallActivity;
-import re.usto.mosaic.R;
 
 /**
  * Created by gabriel on 23/03/17.

@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import re.usto.mosaic.network.NetworkUtils;
+
 /**
  * Created by gabriel on 27/03/17.
  */
@@ -15,7 +17,10 @@ public class ConnectionStatusReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.v(TAG, "Connectivity changed!");
-        context.startService(new MosaicIntent().connectivityChanged());
+        int status = NetworkUtils.getConnectivityStatus(context);
+        if(status != NetworkUtils.TYPE_NOT_CONNECTED) {
+            Log.d("NETWORK","Trying to start service, network status changed");
+            context.startService(new MosaicIntent().connectivityChanged(context));
+        }
     }
 }
