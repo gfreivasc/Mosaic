@@ -68,6 +68,30 @@ public class MosaicCall extends Call {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        /*
+        PJSIP_INV_STATE_NULL
+        Before INVITE is sent or received
+
+        PJSIP_INV_STATE_CALLING
+        After INVITE is sent
+
+        PJSIP_INV_STATE_INCOMING
+        After INVITE is received.
+
+        PJSIP_INV_STATE_EARLY
+        After response with To tag.
+
+        PJSIP_INV_STATE_CONNECTING
+        After 2xx is sent/received.
+
+        PJSIP_INV_STATE_CONFIRMED
+        After ACK is sent/received.
+
+        PJSIP_INV_STATE_DISCONNECTED
+        Session is terminated.
+         */
+        
         if(ci!=null) {
             if (ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_DISCONNECTED) {
                 Log.d(TAG, "STATE_DISCONNECTED");
@@ -79,6 +103,8 @@ public class MosaicCall extends Call {
                 Log.d(TAG,"NULL STATE");
             }else if(ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_INCOMING){
                 Log.d(TAG,"INCOMING CALL");
+            }else if(ci.getState()== pjsip_inv_state.PJSIP_INV_STATE_EARLY){
+
             }
         }
     }
