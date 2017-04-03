@@ -56,13 +56,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else {
                     Log.d("Lucas", "FUDEU");
                 }
-                return;
+                break;
         }
     }
 
     @Override
     public void onClick(View v) {
-        startService(new MosaicIntent().makeCall(this, "2608"));
+        startService(new MosaicIntent().makeCall(this, "2606"));
     }
 
     public class RegistrationStateReceiver extends BroadcastReceiver {

@@ -1,19 +1,14 @@
 package re.usto.mosaic.engine;
 
-import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.pjsip.pjsua2.Account;
-import org.pjsip.pjsua2.CallOpParam;
-import org.pjsip.pjsua2.CallSetting;
 import org.pjsip.pjsua2.OnIncomingCallParam;
 import org.pjsip.pjsua2.OnRegStateParam;
 
-import re.usto.mosaic.IncomingCallActivity;
-
-import static org.pjsip.pjsua2.pjsip_status_code.PJSIP_SC_OK;
+import re.usto.mosaic.CallActivity;
 
 /**
  * Created by gabriel on 21/03/17.
@@ -42,14 +37,18 @@ public class MosaicAccount extends Account {
     public void onIncomingCall(OnIncomingCallParam prm) {
         super.onIncomingCall(prm);
 
+        MosaicCall call = new MosaicCall(this, prm.getCallId());
+
         if (mService.getCall() != null) {
-            //TODO: Decline this call and notify missed call
+            call.decline();
+            call.delete();
             return;
         }
 
-        mService.setCall(new MosaicCall(this, prm.getCallId()));
-        mService.startActivity(new Intent(mService, IncomingCallActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        mService.setCall(call);
+        mService.startActivity(new Intent(mService, CallActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .setAction(MosaicIntent.ACTION_INCOMING_CALL));
     }
 
     MosaicService getService() {

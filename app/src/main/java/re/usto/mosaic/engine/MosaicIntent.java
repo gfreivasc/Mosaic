@@ -33,6 +33,12 @@ public class MosaicIntent {
     public static final String ACTION_DECLINE_CALL =
             "re.usto.mosaic.DECLINE_CALL";
 
+    public static final String ACTION_HANGUP_CALL =
+            "re.usto.mosaic.HANGUP_CALL";
+
+    public static final String ACTION_DISCONNECTED_CALL =
+            "re.usto.mosaic.DISCONNECTED_CALL";
+
     // Extras
     public static final String EXTRA_REGISTRATION_STATE = "extraConnectionStatus";
     public static final String EXTRA_USER_KEY = "userId";
@@ -61,6 +67,11 @@ public class MosaicIntent {
             return this;
         }
 
+        public FilterBuilder addDisconnectedCallAction() {
+            filter.addAction(ACTION_DISCONNECTED_CALL);
+            return this;
+        }
+
         public IntentFilter build() {
             return filter;
         }
@@ -86,9 +97,28 @@ public class MosaicIntent {
         return new Intent().setAction(ACTION_INCOMING_CALL);
     }
 
+    Intent disconnectedCall() {
+        return new Intent().setAction(ACTION_DISCONNECTED_CALL);
+    }
+
     public Intent makeCall(Context context, String destiny) {
         return new Intent(context, MosaicService.class)
                 .setAction(ACTION_MAKE_CALL)
                 .putExtra(EXTRA_CALL_DESTINY, destiny);
+    }
+
+    public Intent acceptCall(Context context) {
+        return new Intent(context, MosaicService.class)
+                .setAction(MosaicIntent.ACTION_ACCEPT_CALL);
+    }
+
+    public Intent declineCall(Context context) {
+        return new Intent(context, MosaicService.class)
+                .setAction(MosaicIntent.ACTION_DECLINE_CALL);
+    }
+
+    public Intent hangupCall(Context context) {
+        return new Intent(context, MosaicService.class)
+                .setAction(MosaicIntent.ACTION_HANGUP_CALL);
     }
 }

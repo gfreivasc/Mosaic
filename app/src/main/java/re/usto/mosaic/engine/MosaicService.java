@@ -10,14 +10,13 @@ import org.pjsip.pjsua2.Call;
 import org.pjsip.pjsua2.CallOpParam;
 import org.pjsip.pjsua2.Endpoint;
 import org.pjsip.pjsua2.EpConfig;
-import org.pjsip.pjsua2.OnCallMediaStateParam;
 import org.pjsip.pjsua2.TransportConfig;
 import org.pjsip.pjsua2.pjsip_status_code;
 import org.pjsip.pjsua2.pjsip_transport_type_e;
 
 import java.util.Locale;
 
-import re.usto.mosaic.IncomingCallActivity;
+import re.usto.mosaic.CallActivity;
 
 /**
  * Created by gabriel on 23/03/17.
@@ -89,11 +88,15 @@ public class MosaicService extends BackgroundService {
             case MosaicIntent.ACTION_DECLINE_CALL:
                 handleDeclineCall();
                 break;
+
+            case MosaicIntent.ACTION_HANGUP_CALL:
+                handleHangupCall();
+                break;
         }
     }
 
     private void handleRegister(Intent intent) {
-        if (intent.hasExtra(MosaicIntent.EXTRA_USER_KEY)) {
+        if (!intent.hasExtra(MosaicIntent.EXTRA_USER_KEY)) {
             try {
                 mAccount.setRegistration(true);
             }
@@ -152,7 +155,12 @@ public class MosaicService extends BackgroundService {
         catch (Exception e) {
             Log.e(TAG, "Error. Unable to make call: ", e);
             mCall = null;
+            return;
         }
+
+        startActivity(new Intent(this, CallActivity.class)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .setAction(MosaicIntent.ACTION_MAKE_CALL));
     }
 
     private void handleAcceptCall() {
@@ -161,6 +169,14 @@ public class MosaicService extends BackgroundService {
 
     private void handleDeclineCall() {
         mCall.decline();
+        mCall.delete();
+        mCall = null;
+    }
+
+    private void  handleHangupCall() {
+        mCall.hangup();
+        mCall.delete();
+        mCall = null;
     }
 
     @Override

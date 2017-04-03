@@ -1,5 +1,6 @@
 package re.usto.mosaic.engine;
 
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.pjsip.pjsua2.AudDevManager;
@@ -116,6 +117,9 @@ class MosaicCall extends Call {
             if (ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_DISCONNECTED) {
                 mAccount.getService().setCall(null);
                 delete();
+                LocalBroadcastManager.getInstance(mAccount.getService()).sendBroadcast(
+                        new MosaicIntent().disconnectedCall()
+                );
                 Log.d(TAG,"CALL DISCONNECTED");
             }else if(ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_CONFIRMED){
                 Log.d(TAG,"CALL CONFIRMED");
@@ -153,7 +157,17 @@ class MosaicCall extends Call {
         catch (Exception e) {
             Log.e(TAG, "Error declining call ", e);
         }
+    }
 
-        mAccount.getService().setCall(null);
+    void hangup() {
+        CallOpParam prm = new CallOpParam();
+        prm.setStatusCode(pjsip_status_code.PJSIP_SC_DECLINE);
+
+        try {
+            super.hangup(prm);
+        }
+        catch (Exception e) {
+            Log.e(TAG, "Could not hangup call ", e);
+        }
     }
 }

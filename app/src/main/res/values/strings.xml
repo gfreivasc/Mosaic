@@ -10,4 +10,8 @@
     <string name="pref_user_id_key" translatable="false">pref_userId</string>
     <string name="pref_user_id_default" translatable="false">2600</string>
     <string name="pref_user_id_summary">Ramal ao qual o app estará registrado</string>
+
+    <string name="accept_call">Atender</string>
+    <string name="decline_call">Recusar</string>
+    <string name="hangup_call">Desligar</string>
 </resources>

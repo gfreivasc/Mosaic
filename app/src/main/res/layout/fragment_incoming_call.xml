@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="re.usto.mosaic.IncomingCallActivity">
+    tools:context="re.usto.mosaic.CallActivity">
 
     <Button
         android:id="@+id/declineButton"
@@ -13,7 +13,7 @@
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:backgroundTint="@android:color/holo_red_dark"
-        android:text="DECLINE"
+        android:text="@string/decline_call"
         android:textColor="@android:color/background_light"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent" />
@@ -26,7 +26,8 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:backgroundTint="@android:color/holo_green_light"
-        android:text="Button"
+        android:text="@string/accept_call"
+        android:textColor="@android:color/background_light"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/declineButton"
         app:layout_constraintRight_toRightOf="parent" />
