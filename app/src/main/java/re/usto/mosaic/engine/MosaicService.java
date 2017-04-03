@@ -183,12 +183,10 @@ public class MosaicService extends BackgroundService {
     }
 
     private void handleAcceptCall() {
-        stopRingtone();
         mCall.accept();
     }
 
     private void handleDeclineCall() {
-        stopRingtone();
         mCall.decline();
     }
 

@@ -115,6 +115,7 @@ class MosaicCall extends Call {
 
         if(ci!=null) {
             if (ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_DISCONNECTED) {
+                mAccount.getService().stopRingtone();
                 mAccount.getService().setCall(null);
                 delete();
                 LocalBroadcastManager.getInstance(mAccount.getService()).sendBroadcast(
@@ -122,6 +123,7 @@ class MosaicCall extends Call {
                 );
                 Log.d(TAG,"CALL DISCONNECTED");
             }else if(ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_CONFIRMED){
+                mAccount.getService().stopRingtone();
                 Log.d(TAG,"CALL CONFIRMED");
             }else if(ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_CALLING){
                 Log.d(TAG,"CALLING");
