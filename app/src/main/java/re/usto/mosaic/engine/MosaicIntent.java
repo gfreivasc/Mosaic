@@ -27,6 +27,12 @@ public class MosaicIntent {
     public static final String ACTION_MAKE_CALL =
             "re.usto.mosaic.MAKE_CALL";
 
+    public static final String ACTION_ACCEPT_CALL =
+            "re.usto.mosaic.ACCEPT_CALL";
+
+    public static final String ACTION_DECLINE_CALL =
+            "re.usto.mosaic.DECLINE_CALL";
+
     // Extras
     public static final String EXTRA_REGISTRATION_STATE = "extraConnectionStatus";
     public static final String EXTRA_USER_KEY = "userId";

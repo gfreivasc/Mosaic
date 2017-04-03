@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        startService(new MosaicIntent().makeCall(this, "2605"));
+        startService(new MosaicIntent().makeCall(this, "2608"));
     }
 
     public class RegistrationStateReceiver extends BroadcastReceiver {

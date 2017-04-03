@@ -30,9 +30,9 @@ public class MosaicService extends BackgroundService {
     private static final String SIP_SERVER_IP = "192.168.174.106";
     private static final int SIP_SERVER_PORT = 5060;
     private static final String SIP_SERVER = SIP_PROTOCOL + SIP_SERVER_IP;
-    private static final Endpoint ep = new Endpoint();
+    private static final Endpoint mEndpoint = new Endpoint();
     private MosaicAccount mAccount;
-    private Call mCall = null;
+    private MosaicCall mCall = null;
 
     public MosaicService() {
         super(TAG);
@@ -44,9 +44,9 @@ public class MosaicService extends BackgroundService {
         super.onCreate();
 
         try {
-            ep.libCreate();
+            mEndpoint.libCreate();
             EpConfig epCfg = new EpConfig();
-            ep.libInit(epCfg);
+            mEndpoint.libInit(epCfg);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -55,8 +55,8 @@ public class MosaicService extends BackgroundService {
         TransportConfig sipTpConfig = new TransportConfig();
         sipTpConfig.setPort(SIP_SERVER_PORT);
         try {
-            ep.transportCreate(pjsip_transport_type_e.PJSIP_TRANSPORT_UDP, sipTpConfig);
-            ep.libStart();
+            mEndpoint.transportCreate(pjsip_transport_type_e.PJSIP_TRANSPORT_UDP, sipTpConfig);
+            mEndpoint.libStart();
         }
         catch (Exception e) {
             Log.e(TAG, "Error establishing transport");
@@ -81,14 +81,30 @@ public class MosaicService extends BackgroundService {
             case MosaicIntent.ACTION_MAKE_CALL:
                 handleMakeCall(intent);
                 break;
+
+            case MosaicIntent.ACTION_ACCEPT_CALL:
+                handleAcceptCall();
+                break;
+
+            case MosaicIntent.ACTION_DECLINE_CALL:
+                handleDeclineCall();
+                break;
         }
     }
 
     private void handleRegister(Intent intent) {
-        registerToServer(intent.getStringExtra(MosaicIntent.EXTRA_USER_KEY));
-    }
+        if (intent.hasExtra(MosaicIntent.EXTRA_USER_KEY)) {
+            try {
+                mAccount.setRegistration(true);
+            }
+            catch (Exception e) {
+                Log.e(TAG, "Could not renew registration ", e);
+            }
+            return;
+        }
 
-    private void registerToServer(String userId) {
+        String userId = intent.getStringExtra(MosaicIntent.EXTRA_USER_KEY);
+
         Log.i(TAG, "Registering user " + userId);
         AccountConfig accountConfig = new AccountConfig();
         accountConfig.setIdUri(String.format(Locale.US,
@@ -127,13 +143,11 @@ public class MosaicService extends BackgroundService {
                 intent.getStringExtra(MosaicIntent.EXTRA_CALL_DESTINY),
                 SIP_SERVER_IP);
 
-        mCall = new Call(mAccount);
+        mCall = new MosaicCall(mAccount);
         CallOpParam prm = new CallOpParam(true);
         prm.setStatusCode(pjsip_status_code.PJSIP_SC_OK);
         try {
             mCall.makeCall(destUri, prm);
-            OnCallMediaStateParam onCallMediaStateParam = new OnCallMediaStateParam();
-            mCall.onCallMediaState(onCallMediaStateParam);
         }
         catch (Exception e) {
             Log.e(TAG, "Error. Unable to make call: ", e);
@@ -141,17 +155,25 @@ public class MosaicService extends BackgroundService {
         }
     }
 
+    private void handleAcceptCall() {
+        mCall.accept();
+    }
+
+    private void handleDeclineCall() {
+        mCall.decline();
+    }
+
     @Override
     public void onDestroy() {
         if (mAccount != null) mAccount.delete();
 
         try {
-            ep.libDestroy();
+            mEndpoint.libDestroy();
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-        ep.delete();
+        mEndpoint.delete();
         super.onDestroy();
     }
 
@@ -159,20 +181,11 @@ public class MosaicService extends BackgroundService {
         return mCall;
     }
 
-    public void setCall(Call call, boolean incoming,CallOpParam opParam) {
+    public void setCall(MosaicCall call) {
         mCall = call;
-        try {
-            mCall.answer(opParam);
-         } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (incoming) {
-            startActivity(new Intent(this, IncomingCallActivity.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        }
     }
 
-    public Endpoint getEp(){
-        return ep;
+    Endpoint getEp(){
+        return mEndpoint;
     }
 }

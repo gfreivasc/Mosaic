@@ -1,6 +1,7 @@
 package re.usto.mosaic.engine;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -9,6 +10,8 @@ import org.pjsip.pjsua2.CallOpParam;
 import org.pjsip.pjsua2.CallSetting;
 import org.pjsip.pjsua2.OnIncomingCallParam;
 import org.pjsip.pjsua2.OnRegStateParam;
+
+import re.usto.mosaic.IncomingCallActivity;
 
 import static org.pjsip.pjsua2.pjsip_status_code.PJSIP_SC_OK;
 
@@ -19,10 +22,10 @@ import static org.pjsip.pjsua2.pjsip_status_code.PJSIP_SC_OK;
 public class MosaicAccount extends Account {
 
     private static final String TAG = "MosaicAccount";
-    private Context mContext;
+    private MosaicService mService;
 
-    public MosaicAccount(Context context) {
-        mContext = context;
+    public MosaicAccount(MosaicService service) {
+        mService = service;
     }
 
     @Override
@@ -30,7 +33,7 @@ public class MosaicAccount extends Account {
         super.onRegState(prm);
         Log.v(TAG, "User reg code " + prm.getCode().toString());
 
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(
+        LocalBroadcastManager.getInstance(mService).sendBroadcast(
                 new MosaicIntent().updateRegistrationState(prm.getCode())
         );
     }
@@ -39,20 +42,17 @@ public class MosaicAccount extends Account {
     public void onIncomingCall(OnIncomingCallParam prm) {
         super.onIncomingCall(prm);
 
-
-        if (((MosaicService)mContext).getCall() != null) {
+        if (mService.getCall() != null) {
             //TODO: Decline this call and notify missed call
             return;
         }
-        CallOpParam callOpParam = new CallOpParam(true);
-        callOpParam.setStatusCode(PJSIP_SC_OK);
 
-        CallSetting opt = callOpParam.getOpt();
-        opt.setAudioCount(1);
-        opt.setVideoCount(0);
-        callOpParam.setOpt(opt);
+        mService.setCall(new MosaicCall(this, prm.getCallId()));
+        mService.startActivity(new Intent(mService, IncomingCallActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+    }
 
-
-        ((MosaicService)mContext).setCall(new MosaicCall(mContext,this, prm.getCallId()), true,callOpParam);
+    MosaicService getService() {
+        return mService;
     }
 }
