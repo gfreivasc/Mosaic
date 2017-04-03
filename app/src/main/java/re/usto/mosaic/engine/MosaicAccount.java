@@ -19,7 +19,7 @@ public class MosaicAccount extends Account {
     private static final String TAG = "MosaicAccount";
     private MosaicService mService;
 
-    public MosaicAccount(MosaicService service) {
+    MosaicAccount(MosaicService service) {
         mService = service;
     }
 
@@ -36,6 +36,7 @@ public class MosaicAccount extends Account {
     @Override
     public void onIncomingCall(OnIncomingCallParam prm) {
         super.onIncomingCall(prm);
+        mService.startRingtone();
 
         MosaicCall call = new MosaicCall(this, prm.getCallId());
 

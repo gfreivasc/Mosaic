@@ -128,6 +128,7 @@ class MosaicCall extends Call {
             }else if(ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_NULL){
                 Log.d(TAG,"NULL STATE");
             }else if(ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_INCOMING){
+                mAccount.getService().startRingtone();
                 Log.d(TAG,"INCOMING CALL");
             }else if(ci.getState()== pjsip_inv_state.PJSIP_INV_STATE_EARLY){
                 Log.d(TAG, "EARLY");
@@ -157,6 +158,7 @@ class MosaicCall extends Call {
         catch (Exception e) {
             Log.e(TAG, "Error declining call ", e);
         }
+        delete();
     }
 
     void hangup() {
@@ -169,5 +171,6 @@ class MosaicCall extends Call {
         catch (Exception e) {
             Log.e(TAG, "Could not hangup call ", e);
         }
+        delete();
     }
 }

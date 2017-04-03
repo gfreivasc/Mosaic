@@ -1,6 +1,11 @@
 package re.usto.mosaic.engine;
 
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -13,6 +18,7 @@ import org.pjsip.pjsua2.EpConfig;
 import org.pjsip.pjsua2.TransportConfig;
 import org.pjsip.pjsua2.pjsip_status_code;
 import org.pjsip.pjsua2.pjsip_transport_type_e;
+import org.pjsip.pjsua2.pjsua_stun_use;
 
 import java.util.Locale;
 
@@ -29,9 +35,15 @@ public class MosaicService extends BackgroundService {
     private static final String SIP_SERVER_IP = "192.168.174.106";
     private static final int SIP_SERVER_PORT = 5060;
     private static final String SIP_SERVER = SIP_PROTOCOL + SIP_SERVER_IP;
+    private static final long[] VIBRATOR_PATTERN = {0, 1000, 1000};
+
     private static final Endpoint mEndpoint = new Endpoint();
     private MosaicAccount mAccount;
     private MosaicCall mCall = null;
+    private MediaPlayer mRingtone;
+    private Uri mRingtoneUri;
+    private Vibrator mVibrator;
+    private AudioManager mAudioManager;
 
     public MosaicService() {
         super(TAG);
@@ -61,6 +73,11 @@ public class MosaicService extends BackgroundService {
             Log.e(TAG, "Error establishing transport");
             e.printStackTrace();
         }
+
+        mRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(
+                this, RingtoneManager.TYPE_RINGTONE);
+        mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+        mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
     }
 
     @Override
@@ -119,6 +136,8 @@ public class MosaicService extends BackgroundService {
         accountConfig.getRegConfig().setRegistrarUri(SIP_SERVER);
         AuthCredInfo authCredInfo = new AuthCredInfo("Digest", "*", userId, 0, "4567");
         accountConfig.getSipConfig().getAuthCreds().add(authCredInfo);
+        accountConfig.getNatConfig().setSipStunUse(pjsua_stun_use.PJSUA_STUN_USE_DEFAULT);
+        accountConfig.getNatConfig().setMediaStunUse(pjsua_stun_use.PJSUA_STUN_USE_DEFAULT);
 
         mAccount = new MosaicAccount(this);
         try {
@@ -164,19 +183,17 @@ public class MosaicService extends BackgroundService {
     }
 
     private void handleAcceptCall() {
+        stopRingtone();
         mCall.accept();
     }
 
     private void handleDeclineCall() {
+        stopRingtone();
         mCall.decline();
-        mCall.delete();
-        mCall = null;
     }
 
     private void  handleHangupCall() {
         mCall.hangup();
-        mCall.delete();
-        mCall = null;
     }
 
     @Override
@@ -203,5 +220,33 @@ public class MosaicService extends BackgroundService {
 
     Endpoint getEp(){
         return mEndpoint;
+    }
+
+    synchronized void startRingtone() {
+        mVibrator.vibrate(VIBRATOR_PATTERN, 0);
+
+        mRingtone = MediaPlayer.create(this, mRingtoneUri);
+        mRingtone.setLooping(true);
+
+        int volume = mAudioManager.getStreamVolume(AudioManager.STREAM_RING);
+        mRingtone.setVolume(volume, volume);
+
+        try {
+            mRingtone.start();
+        }
+        catch (Exception e) {
+            Log.e(TAG, "Could not play ringtone ", e);
+        }
+    }
+
+    synchronized void stopRingtone() {
+        mVibrator.cancel();
+
+        if (mRingtone == null) return;
+
+        if (mRingtone.isPlaying()) mRingtone.stop();
+
+        mRingtone.reset();
+        mRingtone.release();
     }
 }
