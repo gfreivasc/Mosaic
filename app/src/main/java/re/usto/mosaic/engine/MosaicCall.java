@@ -1,5 +1,6 @@
 package re.usto.mosaic.engine;
 
+import android.content.Context;
 import android.util.Log;
 
 import org.pjsip.pjsua2.Account;
@@ -8,6 +9,7 @@ import org.pjsip.pjsua2.Call;
 import org.pjsip.pjsua2.CallInfo;
 import org.pjsip.pjsua2.CallMediaInfo;
 import org.pjsip.pjsua2.CallMediaInfoVector;
+import org.pjsip.pjsua2.ConfPortInfo;
 import org.pjsip.pjsua2.Endpoint;
 import org.pjsip.pjsua2.Media;
 import org.pjsip.pjsua2.OnCallMediaStateParam;
@@ -23,10 +25,15 @@ import org.pjsip.pjsua2.pjsua_call_media_status;
 public class MosaicCall extends Call {
 
     private static final String TAG = MosaicCall.class.getSimpleName();
-    private static  Endpoint ep;
+    private static MosaicService service;
+    private static Endpoint ep;
+    private Context context;
 
-    MosaicCall(Account account, int callId) {
+
+    MosaicCall(Context context, Account account, int callId) {
         super(account, callId);
+        this.service = (MosaicService) context;
+        this.context = context;
     }
 
 
@@ -34,12 +41,15 @@ public class MosaicCall extends Call {
     public void onCallMediaState(OnCallMediaStateParam prm) {
         super.onCallMediaState(prm);
         CallInfo ci;
+        ep = service.getEp();
+        ConfPortInfo confPortInfo = new ConfPortInfo();
+        confPortInfo.setPortId(5060);
+
         try {
             ci = getInfo();
         } catch (Exception e) {
             return;
         }
-
         if(ci!=null){
             CallMediaInfoVector cmiv = ci.getMedia();
             for(int i = 0;i < cmiv.size() ;i++){
@@ -50,13 +60,23 @@ public class MosaicCall extends Call {
 
                         Media media = getMedia(i);
                         AudioMedia am = AudioMedia.typecastFromMedia(media);
+
                         //Sending media to EP code below
+                        try {
+                            ep.audDevManager().getCaptureDevMedia().startTransmit(am);
+                            if (am != null) {
+                                am.startTransmit(ep.audDevManager().getPlaybackDevMedia());
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
 
                     }
                 }
             }
         }
     }
+
 
     @Override
     public void onCallState(OnCallStateParam prm) {
@@ -91,10 +111,11 @@ public class MosaicCall extends Call {
         PJSIP_INV_STATE_DISCONNECTED
         Session is terminated.
          */
-        
+
         if(ci!=null) {
             if (ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_DISCONNECTED) {
-                Log.d(TAG, "STATE_DISCONNECTED");
+                delete();
+                Log.d(TAG,"CALL DISCONNECTED");
             }else if(ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_CONFIRMED){
                 Log.d(TAG,"CALL CONFIRMED");
             }else if(ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_CALLING){

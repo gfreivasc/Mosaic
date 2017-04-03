@@ -5,8 +5,12 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.pjsip.pjsua2.Account;
+import org.pjsip.pjsua2.CallOpParam;
+import org.pjsip.pjsua2.CallSetting;
 import org.pjsip.pjsua2.OnIncomingCallParam;
 import org.pjsip.pjsua2.OnRegStateParam;
+
+import static org.pjsip.pjsua2.pjsip_status_code.PJSIP_SC_OK;
 
 /**
  * Created by gabriel on 21/03/17.
@@ -35,11 +39,20 @@ public class MosaicAccount extends Account {
     public void onIncomingCall(OnIncomingCallParam prm) {
         super.onIncomingCall(prm);
 
+
         if (((MosaicService)mContext).getCall() != null) {
             //TODO: Decline this call and notify missed call
             return;
         }
+        CallOpParam callOpParam = new CallOpParam(true);
+        callOpParam.setStatusCode(PJSIP_SC_OK);
 
-        ((MosaicService)mContext).setCall(new MosaicCall(this, prm.getCallId()), true);
+        CallSetting opt = callOpParam.getOpt();
+        opt.setAudioCount(1);
+        opt.setVideoCount(0);
+        callOpParam.setOpt(opt);
+
+
+        ((MosaicService)mContext).setCall(new MosaicCall(mContext,this, prm.getCallId()), true,callOpParam);
     }
 }

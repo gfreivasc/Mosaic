@@ -1,11 +1,17 @@
 package re.usto.mosaic;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,8 +19,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import re.usto.mosaic.engine.MosaicIntent;
-
-import static android.R.attr.start;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -35,6 +39,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 new RegistrationStateReceiver(),
                 new MosaicIntent.FilterBuilder().addRegistrationStateAction().build()
         );
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 200);
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 200:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d("Lucas", "Foooi permitido");
+                } else {
+                    Log.d("Lucas", "FUDEU");
+                }
+                return;
+        }
     }
 
     @Override

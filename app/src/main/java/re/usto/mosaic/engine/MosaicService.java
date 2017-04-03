@@ -1,7 +1,6 @@
 package re.usto.mosaic.engine;
 
 import android.content.Intent;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -11,7 +10,9 @@ import org.pjsip.pjsua2.Call;
 import org.pjsip.pjsua2.CallOpParam;
 import org.pjsip.pjsua2.Endpoint;
 import org.pjsip.pjsua2.EpConfig;
+import org.pjsip.pjsua2.OnCallMediaStateParam;
 import org.pjsip.pjsua2.TransportConfig;
+import org.pjsip.pjsua2.pjsip_status_code;
 import org.pjsip.pjsua2.pjsip_transport_type_e;
 
 import java.util.Locale;
@@ -128,8 +129,11 @@ public class MosaicService extends BackgroundService {
 
         mCall = new Call(mAccount);
         CallOpParam prm = new CallOpParam(true);
+        prm.setStatusCode(pjsip_status_code.PJSIP_SC_OK);
         try {
             mCall.makeCall(destUri, prm);
+            OnCallMediaStateParam onCallMediaStateParam = new OnCallMediaStateParam();
+            mCall.onCallMediaState(onCallMediaStateParam);
         }
         catch (Exception e) {
             Log.e(TAG, "Error. Unable to make call: ", e);
@@ -155,12 +159,20 @@ public class MosaicService extends BackgroundService {
         return mCall;
     }
 
-    public void setCall(Call call, boolean incoming) {
+    public void setCall(Call call, boolean incoming,CallOpParam opParam) {
         mCall = call;
-
+        try {
+            mCall.answer(opParam);
+         } catch (Exception e) {
+            e.printStackTrace();
+        }
         if (incoming) {
             startActivity(new Intent(this, IncomingCallActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }
+    }
+
+    public Endpoint getEp(){
+        return ep;
     }
 }
