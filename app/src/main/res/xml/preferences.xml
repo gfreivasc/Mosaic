@@ -6,5 +6,11 @@
             android:key="@string/pref_user_id_key"
             android:defaultValue="@string/pref_user_id_default"
             android:summary="@string/pref_user_id_summary" />
+
+        <EditTextPreference
+            android:title="@string/pref_target_id_title"
+            android:key="@string/pref_target_id_key"
+            android:defaultValue="@string/pref_target_id_default"
+            android:summary="@string/pref_target_id_summary" />
     </PreferenceCategory>
 </PreferenceScreen>

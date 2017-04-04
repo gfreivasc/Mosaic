@@ -4,8 +4,10 @@ import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -62,7 +64,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        startService(new MosaicIntent().makeCall(this, "2606"));
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        startService(new MosaicIntent().makeCall(this, sharedPreferences.getString(
+                getString(R.string.pref_target_id_key),
+                getString(R.string.pref_target_id_default)
+        )));
     }
 
     public class RegistrationStateReceiver extends BroadcastReceiver {
