@@ -3,6 +3,7 @@ package re.usto.mosaic.engine;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.WindowManager;
 
 import org.pjsip.pjsua2.Account;
 import org.pjsip.pjsua2.OnIncomingCallParam;
@@ -52,7 +53,7 @@ public class MosaicAccount extends Account {
 
         mService.setCall(call);
         mService.startActivity(new Intent(mService, CallActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 .setAction(MosaicIntent.ACTION_INCOMING_CALL));
     }
 

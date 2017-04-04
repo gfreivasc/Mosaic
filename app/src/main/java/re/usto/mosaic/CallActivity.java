@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.WindowManager;
 
 import re.usto.mosaic.components.IncomingCallFragment;
 import re.usto.mosaic.components.OnCallFragment;
@@ -21,6 +22,11 @@ public class CallActivity extends AppCompatActivity {
         setContentView(R.layout.activity_call);
 
         if (MosaicIntent.ACTION_INCOMING_CALL.equals(getIntent().getAction())) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                    | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                    | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                    | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+
             getFragmentManager().beginTransaction().add(
                     R.id.call_layout, new IncomingCallFragment()
             ).commit();
