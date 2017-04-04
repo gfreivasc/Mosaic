@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.pjsip.pjsua2.AccountConfig;
 import org.pjsip.pjsua2.AuthCredInfo;
@@ -25,7 +26,7 @@ import java.util.Locale;
 import re.usto.mosaic.CallActivity;
 
 /**
- * Created by gabriel on 23/03/17.
+ * @author gabriel & lucas on 23/03/17.
  */
 
 public class MosaicService extends BackgroundService {
@@ -159,6 +160,12 @@ public class MosaicService extends BackgroundService {
 
     private void handleMakeCall(Intent intent) {
         if (!intent.hasExtra(MosaicIntent.EXTRA_CALL_DESTINY)) return;
+        if (mAccount == null ||
+                mAccount.getRegState().equals(pjsip_status_code.PJSIP_SC_OK)) {
+            Toast.makeText(this, "Could not contact server. Try again later", Toast.LENGTH_SHORT)
+                    .show();
+        }
+
         String destUri = String.format(Locale.US,
                 "%1$s%2$s@%3$s",
                 SIP_PROTOCOL,

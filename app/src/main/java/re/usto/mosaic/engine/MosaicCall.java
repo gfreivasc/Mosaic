@@ -116,11 +116,10 @@ class MosaicCall extends Call {
         if(ci!=null) {
             if (ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_DISCONNECTED) {
                 mAccount.getService().stopRingtone();
-                mAccount.getService().setCall(null);
-                delete();
                 LocalBroadcastManager.getInstance(mAccount.getService()).sendBroadcast(
                         new MosaicIntent().disconnectedCall()
                 );
+                delete();
                 Log.d(TAG,"CALL DISCONNECTED");
             }else if(ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_CONFIRMED){
                 mAccount.getService().stopRingtone();
@@ -160,6 +159,9 @@ class MosaicCall extends Call {
         catch (Exception e) {
             Log.e(TAG, "Error declining call ", e);
         }
+        LocalBroadcastManager.getInstance(mAccount.getService()).sendBroadcast(
+                new MosaicIntent().disconnectedCall()
+        );
         delete();
     }
 
@@ -173,6 +175,9 @@ class MosaicCall extends Call {
         catch (Exception e) {
             Log.e(TAG, "Could not hangup call ", e);
         }
+        LocalBroadcastManager.getInstance(mAccount.getService()).sendBroadcast(
+                new MosaicIntent().disconnectedCall()
+        );
         delete();
     }
 }

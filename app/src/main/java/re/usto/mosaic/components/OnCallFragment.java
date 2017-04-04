@@ -31,7 +31,6 @@ public class OnCallFragment extends Fragment {
                 getActivity().startService(
                         new MosaicIntent().hangupCall(getActivity())
                 );
-                getActivity().finish();
             }
         });
         return rootView;

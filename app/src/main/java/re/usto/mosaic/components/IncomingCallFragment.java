@@ -50,7 +50,6 @@ public class IncomingCallFragment extends Fragment {
                 getActivity().startService(
                         new MosaicIntent().declineCall(getActivity())
                 );
-                getActivity().finish();
             }
         });
 

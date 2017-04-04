@@ -7,6 +7,7 @@ import android.util.Log;
 import org.pjsip.pjsua2.Account;
 import org.pjsip.pjsua2.OnIncomingCallParam;
 import org.pjsip.pjsua2.OnRegStateParam;
+import org.pjsip.pjsua2.pjsip_status_code;
 
 import re.usto.mosaic.CallActivity;
 
@@ -18,6 +19,7 @@ public class MosaicAccount extends Account {
 
     private static final String TAG = "MosaicAccount";
     private MosaicService mService;
+    private pjsip_status_code mRegState;
 
     MosaicAccount(MosaicService service) {
         mService = service;
@@ -27,6 +29,8 @@ public class MosaicAccount extends Account {
     public void onRegState(OnRegStateParam prm) {
         super.onRegState(prm);
         Log.v(TAG, "User reg code " + prm.getCode().toString());
+
+        mRegState = prm.getCode();
 
         LocalBroadcastManager.getInstance(mService).sendBroadcast(
                 new MosaicIntent().updateRegistrationState(prm.getCode())
@@ -54,5 +58,9 @@ public class MosaicAccount extends Account {
 
     MosaicService getService() {
         return mService;
+    }
+
+    pjsip_status_code getRegState() {
+        return mRegState;
     }
 }
