@@ -27,6 +27,7 @@ import org.pjsip.pjsua2.pjsua_stun_use;
 import java.util.Locale;
 
 import re.usto.mosaic.CallActivity;
+import re.usto.mosaic.R;
 
 /**
  * @author gabriel & lucas on 23/03/17.
@@ -45,6 +46,7 @@ public class MosaicService extends BackgroundService {
     private MosaicAccount mAccount;
     private MosaicCall mCall = null;
     private MediaPlayer mRingtone;
+    private MediaPlayer mDialTone;
     private Uri mRingtoneUri;
     private Vibrator mVibrator;
     private AudioManager mAudioManager;
@@ -270,6 +272,27 @@ public class MosaicService extends BackgroundService {
 
         mRingtone.reset();
         mRingtone.release();
+    }
+
+    synchronized void startDialTone() {
+        mDialTone = MediaPlayer.create(this, R.raw.dial_tone);
+        mDialTone.setLooping(true);
+
+        try {
+            mDialTone.start();
+        }
+        catch (Exception e) {
+            Log.e(TAG, "NO dial tune", e);
+        }
+    }
+
+    synchronized void stopDialTone() {
+        if (mDialTone == null) return;
+
+        if (mDialTone.isPlaying()) mDialTone.stop();
+
+        mDialTone.reset();
+        mDialTone.release();
     }
 
     private class CallDisconnectedReceiver extends BroadcastReceiver {
