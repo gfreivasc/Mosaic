@@ -120,6 +120,7 @@ class MosaicCall extends Call {
                 LocalBroadcastManager.getInstance(mAccount.getService()).sendBroadcast(
                         new MosaicIntent().disconnectedCall()
                 );
+                mAccount.getService().setCall(null);
                 delete();
             }else if(ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_CONFIRMED){
                 mAccount.getService().stopRingtone();
