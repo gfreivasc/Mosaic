@@ -32,11 +32,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".CallActivity" />
+        <activity android:name=".CallActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".MainActivity" />
 
         <activity android:name=".SettingsActivity"
-            android:parentActivityName=".MainActivity">
-        </activity>
+            android:parentActivityName=".MainActivity" />
 
         <receiver
             android:name=".engine.ConnectionStatusReceiver">
