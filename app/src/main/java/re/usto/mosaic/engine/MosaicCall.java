@@ -118,7 +118,6 @@ class MosaicCall extends Call {
                 Log.d(TAG,"CALL DISCONNECTED");
                 // Call can be disconnected before answered
                 mAccount.getService().stopDialTone();
-
                 mAccount.getService().stopRingtone();
                 LocalBroadcastManager.getInstance(mAccount.getService()).sendBroadcast(
                         new MosaicIntent().disconnectedCall()
@@ -163,9 +162,6 @@ class MosaicCall extends Call {
         catch (Exception e) {
             Log.e(TAG, "Error declining call ", e);
         }
-        LocalBroadcastManager.getInstance(mAccount.getService()).sendBroadcast(
-                new MosaicIntent().disconnectedCall()
-        );
     }
 
     void hangup() {
@@ -178,8 +174,5 @@ class MosaicCall extends Call {
         catch (Exception e) {
             Log.e(TAG, "Could not hangup call ", e);
         }
-        LocalBroadcastManager.getInstance(mAccount.getService()).sendBroadcast(
-                new MosaicIntent().disconnectedCall()
-        );
     }
 }

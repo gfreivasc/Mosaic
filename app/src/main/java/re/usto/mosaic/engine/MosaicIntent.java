@@ -83,6 +83,11 @@ public class MosaicIntent {
                 .putExtra(EXTRA_USER_KEY, userKey);
     }
 
+    public Intent registerUser(Context context) {
+        return new Intent(context, MosaicService.class)
+                .setAction(ACTION_REGISTER_USER);
+    }
+
     Intent updateRegistrationState(pjsip_status_code statusCode) {
         return new Intent()
                 .setAction(ACTION_UPDATE_REGISTRATION_STATE)

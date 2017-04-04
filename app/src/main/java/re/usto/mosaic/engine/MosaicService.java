@@ -47,6 +47,7 @@ public class MosaicService extends BackgroundService {
     private MosaicCall mCall = null;
     private MediaPlayer mRingtone;
     private MediaPlayer mDialTone;
+    private MediaPlayer mDisconnectedTone;
     private Uri mRingtoneUri;
     private Vibrator mVibrator;
     private AudioManager mAudioManager;
@@ -172,10 +173,8 @@ public class MosaicService extends BackgroundService {
 
     private void handleMakeCall(Intent intent) {
         if (!intent.hasExtra(MosaicIntent.EXTRA_CALL_DESTINY)) return;
-        if (mAccount == null ||
-                mAccount.getRegState().equals(pjsip_status_code.PJSIP_SC_OK)) {
-            Toast.makeText(this, "Could not contact server. Try again later", Toast.LENGTH_SHORT)
-                    .show();
+        if (mAccount == null) {
+            return;
         }
 
         String destUri = String.format(Locale.US,
@@ -293,6 +292,27 @@ public class MosaicService extends BackgroundService {
 
         mDialTone.reset();
         mDialTone.release();
+    }
+
+    synchronized void startDisconnectedTone() {
+        mDisconnectedTone = MediaPlayer.create(this, R.raw.disconnected_tone);
+        mDisconnectedTone.setLooping(true);
+
+        try {
+            mDisconnectedTone.start();
+        }
+        catch (Exception e) {
+            Log.e(TAG, "NO dial tune", e);
+        }
+    }
+
+    synchronized void stopDisconnectedTone() {
+        if (mDisconnectedTone == null) return;
+
+        if (mDisconnectedTone.isPlaying()) mDisconnectedTone.stop();
+
+        mDisconnectedTone.reset();
+        mDisconnectedTone.release();
     }
 
     private class CallDisconnectedReceiver extends BroadcastReceiver {

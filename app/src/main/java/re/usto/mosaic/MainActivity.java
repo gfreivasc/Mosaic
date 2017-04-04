@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -19,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import re.usto.mosaic.engine.MosaicIntent;
 
@@ -27,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button calling;
     private TextView mConnectionStatusText;
     private RegistrationStateReceiver mRegStateReceiver;
+    private boolean mOnline = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +46,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mRegStateReceiver,
                 new MosaicIntent.FilterBuilder().addRegistrationStateAction().build()
         );
+
+        startService(new MosaicIntent().registerUser(this));
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -70,6 +75,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
+        if (!mOnline) {
+            Toast.makeText(
+                    this,
+                    "Não foi possível contactar o servidor. Tente novamente mais tarde",
+                    Toast.LENGTH_SHORT
+            ).show();
+            return;
+        }
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         startService(new MosaicIntent().makeCall(this, sharedPreferences.getString(
                 getString(R.string.pref_target_id_key),
@@ -78,6 +91,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public class RegistrationStateReceiver extends BroadcastReceiver {
+
+        private boolean retry = true;
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -88,9 +103,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 switch (statusCode) {
                     case "PJSIP_SC_OK":
                         mConnectionStatusText.setText(getString(R.string.status_on));
+                        mOnline = true;
                         break;
                     default:
                         mConnectionStatusText.setText(getString(R.string.status_off));
+                        mOnline = false;
                 }
             }
         }
