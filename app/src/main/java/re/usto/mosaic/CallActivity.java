@@ -13,6 +13,8 @@ import re.usto.mosaic.engine.MosaicIntent;
 
 public class CallActivity extends AppCompatActivity {
 
+    private CallDisconnectedReceiver mReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,8 +31,9 @@ public class CallActivity extends AppCompatActivity {
             ).commit();
         }
 
+        mReceiver = new CallDisconnectedReceiver();
         LocalBroadcastManager.getInstance(this).registerReceiver(
-                new CallDisconnectedReceiver(),
+                mReceiver,
                 new MosaicIntent.FilterBuilder().addDisconnectedCallAction().build()
         );
     }
@@ -40,5 +43,11 @@ public class CallActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             finish();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
+        super.onDestroy();
     }
 }

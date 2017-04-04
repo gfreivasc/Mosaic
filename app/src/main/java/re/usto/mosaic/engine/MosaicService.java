@@ -1,5 +1,7 @@
 package re.usto.mosaic.engine;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -7,6 +9,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -45,6 +48,7 @@ public class MosaicService extends BackgroundService {
     private Uri mRingtoneUri;
     private Vibrator mVibrator;
     private AudioManager mAudioManager;
+    private CallDisconnectedReceiver mCallDisconnectedReceiver;
 
     public MosaicService() {
         super(TAG);
@@ -79,6 +83,12 @@ public class MosaicService extends BackgroundService {
                 this, RingtoneManager.TYPE_RINGTONE);
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+
+        mCallDisconnectedReceiver = new CallDisconnectedReceiver();
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                mCallDisconnectedReceiver,
+                new MosaicIntent.FilterBuilder().addDisconnectedCallAction().build()
+        );
     }
 
     @Override
@@ -195,10 +205,14 @@ public class MosaicService extends BackgroundService {
 
     private void handleDeclineCall() {
         mCall.decline();
+        if (mCall == null) return;
+        mCall = null;
     }
 
     private void  handleHangupCall() {
         mCall.hangup();
+        if (mCall == null) return;
+        mCall = null;
     }
 
     @Override
@@ -212,6 +226,9 @@ public class MosaicService extends BackgroundService {
             e.printStackTrace();
         }
         mEndpoint.delete();
+
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(
+                mCallDisconnectedReceiver);
         super.onDestroy();
     }
 
@@ -253,5 +270,13 @@ public class MosaicService extends BackgroundService {
 
         mRingtone.reset();
         mRingtone.release();
+    }
+
+    private class CallDisconnectedReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (mCall == null) return;
+            mCall = null;
+        }
     }
 }

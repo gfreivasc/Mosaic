@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Button calling;
     private TextView mConnectionStatusText;
+    private RegistrationStateReceiver mRegStateReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,23 +38,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         calling.setOnClickListener(this);
 
+        mRegStateReceiver = new RegistrationStateReceiver();
         LocalBroadcastManager.getInstance(this).registerReceiver(
-                new RegistrationStateReceiver(),
+                mRegStateReceiver,
                 new MosaicIntent.FilterBuilder().addRegistrationStateAction().build()
         );
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 200);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                    this, new String[]{Manifest.permission.RECORD_AUDIO}, 200);
         }
 
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case 200:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0]
+                        == PackageManager.PERMISSION_GRANTED) {
                     Log.d("Lucas", "Foooi permitido");
                 } else {
                     Log.d("Lucas", "FUDEU");
@@ -104,5 +110,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         return false;
+    }
+
+    @Override
+    protected void onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(
+                mRegStateReceiver);
+        super.onDestroy();
     }
 }
