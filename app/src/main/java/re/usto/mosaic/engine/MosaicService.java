@@ -8,6 +8,7 @@ import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Vibrator;
+import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -24,9 +25,13 @@ import org.pjsip.pjsua2.pjsip_status_code;
 import org.pjsip.pjsua2.pjsip_transport_type_e;
 import org.pjsip.pjsua2.pjsua_stun_use;
 
+import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Locale;
 
 import re.usto.mosaic.CallActivity;
+import re.usto.mosaic.Mosaic;
 import re.usto.mosaic.R;
 
 /**
@@ -42,15 +47,21 @@ public class MosaicService extends BackgroundService {
     private static final String SIP_SERVER = SIP_PROTOCOL + SIP_SERVER_IP;
     private static final long[] VIBRATOR_PATTERN = {0, 1000, 1000};
 
+    @IntDef({MediaType.RINGTONE, MediaType.DIAL_TONE, MediaType.DISCONNECTED_TONE})
+    @Retention(RetentionPolicy.SOURCE)
+    @interface MediaType {
+        int RINGTONE = 0;
+        int DIAL_TONE = 1;
+        int DISCONNECTED_TONE = 2;
+    }
+
     private static final Endpoint mEndpoint = new Endpoint();
     private MosaicAccount mAccount;
     private MosaicCall mCall = null;
-    private MediaPlayer mRingtone;
-    private MediaPlayer mDialTone;
-    private MediaPlayer mDisconnectedTone;
+    private MediaPlayer mMediaPlayer;
     private Uri mRingtoneUri;
     private Vibrator mVibrator;
-    private AudioManager mAudioManager;
+
     private CallDisconnectedReceiver mCallDisconnectedReceiver;
 
     public MosaicService() {
@@ -84,7 +95,6 @@ public class MosaicService extends BackgroundService {
 
         mRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(
                 this, RingtoneManager.TYPE_RINGTONE);
-        mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
 
         mCallDisconnectedReceiver = new CallDisconnectedReceiver();
@@ -206,14 +216,10 @@ public class MosaicService extends BackgroundService {
 
     private void handleDeclineCall() {
         mCall.decline();
-        if (mCall == null) return;
-        mCall = null;
     }
 
     private void  handleHangupCall() {
         mCall.hangup();
-        if (mCall == null) return;
-        mCall = null;
     }
 
     @Override
@@ -245,74 +251,45 @@ public class MosaicService extends BackgroundService {
         return mEndpoint;
     }
 
-    synchronized void startRingtone() {
-        mVibrator.vibrate(VIBRATOR_PATTERN, 0);
+    synchronized void startMediaPlayback(@MediaType int mediaType) {
+        // startService(new MosaicIntent().playMedia(this, mediaType));
 
-        mRingtone = MediaPlayer.create(this, mRingtoneUri);
-        mRingtone.setLooping(true);
+        mMediaPlayer = new MediaPlayer();
+        switch (mediaType) {
+            case MediaType.RINGTONE:
+                mVibrator.vibrate(VIBRATOR_PATTERN, 0);
+                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_RING);
+                try {
+                    mMediaPlayer.setDataSource(this, mRingtoneUri);
+                }
+                catch (IOException e) {
+                    Log.e(TAG, "Could not setup media player", e);
+                }
+                break;
 
-        int volume = mAudioManager.getStreamVolume(AudioManager.STREAM_RING);
-        mRingtone.setVolume(volume, volume);
+            case MediaType.DIAL_TONE:
+                mMediaPlayer = MediaPlayer.create(this, R.raw.dial_tone);
+                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+                break;
 
-        try {
-            mRingtone.start();
+            case MediaType.DISCONNECTED_TONE:
+                mMediaPlayer = MediaPlayer.create(this, R.raw.disconnected_tone);
+                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+                break;
         }
-        catch (Exception e) {
-            Log.e(TAG, "Could not play ringtone ", e);
-        }
+
+        mMediaPlayer.setLooping(true);
+        mMediaPlayer.start();
     }
 
-    synchronized void stopRingtone() {
+    synchronized void stopMediaPlayback() {
         mVibrator.cancel();
-
-        if (mRingtone == null) return;
-
-        if (mRingtone.isPlaying()) mRingtone.stop();
-
-        mRingtone.reset();
-        mRingtone.release();
-    }
-
-    synchronized void startDialTone() {
-        mDialTone = MediaPlayer.create(this, R.raw.dial_tone);
-        mDialTone.setLooping(true);
-
-        try {
-            mDialTone.start();
+        if (mMediaPlayer != null && (mMediaPlayer.isPlaying() || mMediaPlayer.isLooping())) {
+            mMediaPlayer.stop();
+            mMediaPlayer.reset();
+            mMediaPlayer.release();
         }
-        catch (Exception e) {
-            Log.e(TAG, "NO dial tune", e);
-        }
-    }
-
-    synchronized void stopDialTone() {
-        if (mDialTone == null) return;
-
-        if (mDialTone.isPlaying()) mDialTone.stop();
-
-        mDialTone.reset();
-        mDialTone.release();
-    }
-
-    synchronized void startDisconnectedTone() {
-        mDisconnectedTone = MediaPlayer.create(this, R.raw.disconnected_tone);
-        mDisconnectedTone.setLooping(true);
-
-        try {
-            mDisconnectedTone.start();
-        }
-        catch (Exception e) {
-            Log.e(TAG, "NO dial tune", e);
-        }
-    }
-
-    synchronized void stopDisconnectedTone() {
-        if (mDisconnectedTone == null) return;
-
-        if (mDisconnectedTone.isPlaying()) mDisconnectedTone.stop();
-
-        mDisconnectedTone.reset();
-        mDisconnectedTone.release();
+        mMediaPlayer = null;
     }
 
     private class CallDisconnectedReceiver extends BroadcastReceiver {

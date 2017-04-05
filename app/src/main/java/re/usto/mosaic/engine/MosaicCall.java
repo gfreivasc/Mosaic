@@ -117,18 +117,16 @@ class MosaicCall extends Call {
             if (ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_DISCONNECTED) {
                 Log.d(TAG,"CALL DISCONNECTED");
                 // Call can be disconnected before answered
-                mAccount.getService().stopDialTone();
-                mAccount.getService().stopRingtone();
                 LocalBroadcastManager.getInstance(mAccount.getService()).sendBroadcast(
                         new MosaicIntent().disconnectedCall()
                 );
+                mAccount.getService().stopMediaPlayback();
                 delete();
             }else if(ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_CONFIRMED){
-                mAccount.getService().stopRingtone();
-                mAccount.getService().stopDialTone();
+                mAccount.getService().stopMediaPlayback();
                 Log.d(TAG,"CALL CONFIRMED");
             }else if(ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_CALLING){
-                mAccount.getService().startDialTone();
+                mAccount.getService().startMediaPlayback(MosaicService.MediaType.DIAL_TONE);
                 Log.d(TAG,"CALLING");
             }else if(ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_NULL){
                 Log.d(TAG,"NULL STATE");

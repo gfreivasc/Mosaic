@@ -39,10 +39,17 @@ public class MosaicIntent {
     public static final String ACTION_DISCONNECTED_CALL =
             "re.usto.mosaic.DISCONNECTED_CALL";
 
+    static final String ACTION_PLAY_MEDIA =
+            "re.usto.mosaic.PLAY_MEDIA";
+
+    static final String ACTION_STOP_MEDIA =
+            "re.usto.mosaic.STOP_MEDIA";
+
     // Extras
     public static final String EXTRA_REGISTRATION_STATE = "extraConnectionStatus";
     public static final String EXTRA_USER_KEY = "userId";
     public static final String EXTRA_CALL_DESTINY = "callDestiny";
+    static final String EXTRA_MEDIA_TYPE = "mediaType";
 
     public static class FilterBuilder {
 
@@ -125,5 +132,16 @@ public class MosaicIntent {
     public Intent hangupCall(Context context) {
         return new Intent(context, MosaicService.class)
                 .setAction(MosaicIntent.ACTION_HANGUP_CALL);
+    }
+
+    Intent playMedia(Context context, @PlaybackService.MediaType int mediaType) {
+        return new Intent(context, PlaybackService.class)
+                .setAction(ACTION_PLAY_MEDIA)
+                .putExtra(EXTRA_MEDIA_TYPE, mediaType);
+    }
+
+    Intent stopMedia(Context context) {
+        return new Intent(context, PlaybackService.class)
+                .setAction(ACTION_STOP_MEDIA);
     }
 }
