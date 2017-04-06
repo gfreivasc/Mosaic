@@ -3,6 +3,7 @@ package re.usto.mosaic.engine;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
@@ -265,21 +266,42 @@ public class MosaicService extends BackgroundService {
                 catch (IOException e) {
                     Log.e(TAG, "Could not setup media player", e);
                 }
+
                 break;
 
             case MediaType.DIAL_TONE:
-                mMediaPlayer = MediaPlayer.create(this, R.raw.dial_tone);
+                AssetFileDescriptor afd = this.getResources().openRawResourceFd(R.raw.dial_tone);
                 mMediaPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+                try {
+                    mMediaPlayer.setDataSource(
+                            afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                }
+                catch (IOException e) {
+                    Log.e(TAG, "Could not setup media player", e);
+                }
                 break;
 
             case MediaType.DISCONNECTED_TONE:
-                mMediaPlayer = MediaPlayer.create(this, R.raw.disconnected_tone);
+                afd = this.getResources().openRawResourceFd(R.raw.dial_tone);
                 mMediaPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+                try {
+                    mMediaPlayer.setDataSource(
+                            afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                }
+                catch (IOException e) {
+                    Log.e(TAG, "Could not setup media player", e);
+                }
                 break;
         }
 
         mMediaPlayer.setLooping(true);
-        mMediaPlayer.start();
+        mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                mp.start();
+            }
+        });
+        mMediaPlayer.prepareAsync();
     }
 
     synchronized void stopMediaPlayback() {
