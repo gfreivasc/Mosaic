@@ -252,66 +252,12 @@ public class MosaicService extends BackgroundService {
         return mEndpoint;
     }
 
-    synchronized void startMediaPlayback(@MediaType int mediaType) {
-        // startService(new MosaicIntent().playMedia(this, mediaType));
-
-        mMediaPlayer = new MediaPlayer();
-        switch (mediaType) {
-            case MediaType.RINGTONE:
-                mVibrator.vibrate(VIBRATOR_PATTERN, 0);
-                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_RING);
-                try {
-                    mMediaPlayer.setDataSource(this, mRingtoneUri);
-                }
-                catch (IOException e) {
-                    Log.e(TAG, "Could not setup media player", e);
-                }
-
-                break;
-
-            case MediaType.DIAL_TONE:
-                AssetFileDescriptor afd = this.getResources().openRawResourceFd(R.raw.dial_tone);
-                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
-                try {
-                    mMediaPlayer.setDataSource(
-                            afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-                }
-                catch (IOException e) {
-                    Log.e(TAG, "Could not setup media player", e);
-                }
-                break;
-
-            case MediaType.DISCONNECTED_TONE:
-                afd = this.getResources().openRawResourceFd(R.raw.dial_tone);
-                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
-                try {
-                    mMediaPlayer.setDataSource(
-                            afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-                }
-                catch (IOException e) {
-                    Log.e(TAG, "Could not setup media player", e);
-                }
-                break;
-        }
-
-        mMediaPlayer.setLooping(true);
-        mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                mp.start();
-            }
-        });
-        mMediaPlayer.prepareAsync();
+    void startMediaPlayback(@MediaType int mediaType) {
+        startService(new MosaicIntent().playMedia(this, mediaType));
     }
 
-    synchronized void stopMediaPlayback() {
-        mVibrator.cancel();
-        if (mMediaPlayer != null && (mMediaPlayer.isPlaying() || mMediaPlayer.isLooping())) {
-            mMediaPlayer.stop();
-            mMediaPlayer.reset();
-            mMediaPlayer.release();
-        }
-        mMediaPlayer = null;
+    void stopMediaPlayback() {
+        startService(new MosaicIntent().stopMedia(this));
     }
 
     private class CallDisconnectedReceiver extends BroadcastReceiver {

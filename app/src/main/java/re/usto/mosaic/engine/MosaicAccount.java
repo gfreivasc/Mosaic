@@ -36,7 +36,7 @@ public class MosaicAccount extends Account {
     @Override
     public void onIncomingCall(OnIncomingCallParam prm) {
         super.onIncomingCall(prm);
-        mService.startMediaPlayback(MosaicService.MediaType.RINGTONE);
+        mService.startMediaPlayback(PlaybackService.MediaType.RINGTONE);
 
         MosaicCall call = new MosaicCall(this, prm.getCallId());
 

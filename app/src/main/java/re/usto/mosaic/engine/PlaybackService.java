@@ -2,6 +2,8 @@ package re.usto.mosaic.engine;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -9,7 +11,9 @@ import android.os.IBinder;
 import android.os.Vibrator;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
+import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -36,6 +40,7 @@ public class PlaybackService extends Service {
     private MediaPlayer mMediaPlayer;
     private Uri mRingtoneUri;
     private Vibrator mVibrator;
+    private boolean mVibratorState = false;
 
     @Override
     public void onCreate() {
@@ -52,35 +57,79 @@ public class PlaybackService extends Service {
 
         if (MosaicIntent.ACTION_PLAY_MEDIA.equals(intent.getAction())
                 && intent.hasExtra(MosaicIntent.EXTRA_MEDIA_TYPE)) {
-            int mediaType = intent.getIntExtra(MosaicIntent.EXTRA_MEDIA_TYPE, 666);
-
-            switch (mediaType) {
-                case MediaType.RINGTONE:
-                    mVibrator.vibrate(VIBRATOR_PATTERN, 0);
-                    mMediaPlayer = MediaPlayer.create(this, mRingtoneUri);
-                    break;
-
-                case MediaType.DIAL_TONE:
-                    mMediaPlayer = MediaPlayer.create(this, R.raw.dial_tone);
-                    break;
-
-                case MediaType.DISCONNECTED_TONE:
-                    mMediaPlayer = MediaPlayer.create(this, R.raw.disconnected_tone);
-                    break;
-            }
-
-            mMediaPlayer.setLooping(true);
-            mMediaPlayer.start();
+            @MediaType int mediaType = intent.getIntExtra(MosaicIntent.EXTRA_MEDIA_TYPE, 666);
+            handlePlayMedia(mediaType);
+            return START_STICKY;
         }
         else if (MosaicIntent.ACTION_STOP_MEDIA.equals(intent.getAction())) {
-            mVibrator.cancel();
-            if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
-                mMediaPlayer.release();
-            }
-            mMediaPlayer = null;
+            handleStopMedia();
+            return START_NOT_STICKY;
         }
 
-        return START_STICKY;
+        return super.onStartCommand(null, flags, startId);
+    }
+
+    synchronized void handlePlayMedia(@MediaType int mediaType) {
+        mMediaPlayer = new MediaPlayer();
+        switch (mediaType) {
+            case MediaType.RINGTONE:
+                mVibrator.vibrate(VIBRATOR_PATTERN, 0);
+                mVibratorState = true;
+                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_RING);
+                try {
+                    mMediaPlayer.setDataSource(this, mRingtoneUri);
+                }
+                catch (IOException e) {
+                    Log.e(TAG, "Could not setup media player", e);
+                }
+                break;
+
+            case MediaType.DIAL_TONE:
+                AssetFileDescriptor afd = this.getResources().openRawResourceFd(R.raw.dial_tone);
+                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+                try {
+                    mMediaPlayer.setDataSource(
+                            afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                }
+                catch (IOException e) {
+                    Log.e(TAG, "Could not setup media player", e);
+                }
+                break;
+
+            case MediaType.DISCONNECTED_TONE:
+                afd = this.getResources().openRawResourceFd(R.raw.dial_tone);
+                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+                try {
+                    mMediaPlayer.setDataSource(
+                            afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                }
+                catch (IOException e) {
+                    Log.e(TAG, "Could not setup media player", e);
+                }
+                break;
+        }
+
+        mMediaPlayer.setLooping(true);
+        mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                mp.start();
+            }
+        });
+        mMediaPlayer.prepareAsync();
+    }
+
+    synchronized void handleStopMedia() {
+        if (mVibratorState) {
+            mVibratorState = false;
+            mVibrator.cancel();
+        }
+        if (mMediaPlayer != null && (mMediaPlayer.isPlaying() || mMediaPlayer.isLooping())) {
+            mMediaPlayer.stop();
+            mMediaPlayer.reset();
+            mMediaPlayer.release();
+        }
+        mMediaPlayer = null;
     }
 
     @Nullable

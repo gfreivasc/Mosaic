@@ -50,6 +50,8 @@
         </receiver>
 
         <service android:name=".engine.MosaicService" />
+
+        <service android:name=".engine.PlaybackService" />
     </application>
 
 </manifest>
