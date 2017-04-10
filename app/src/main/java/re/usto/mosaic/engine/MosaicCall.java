@@ -126,7 +126,7 @@ class MosaicCall extends Call {
                 mAccount.getService().stopMediaPlayback();
                 Log.d(TAG,"CALL CONFIRMED");
             }else if(ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_CALLING){
-                mAccount.getService().startMediaPlayback(MosaicService.MediaType.DIAL_TONE);
+                mAccount.getService().startMediaPlayback(PlaybackService.MediaType.DIAL_TONE);
                 Log.d(TAG,"CALLING");
             }else if(ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_NULL){
                 Log.d(TAG,"NULL STATE");

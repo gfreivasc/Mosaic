@@ -46,22 +46,10 @@ public class MosaicService extends BackgroundService {
     private static final String SIP_SERVER_IP = "192.168.174.106";
     private static final int SIP_SERVER_PORT = 5060;
     private static final String SIP_SERVER = SIP_PROTOCOL + SIP_SERVER_IP;
-    private static final long[] VIBRATOR_PATTERN = {0, 1000, 1000};
-
-    @IntDef({MediaType.RINGTONE, MediaType.DIAL_TONE, MediaType.DISCONNECTED_TONE})
-    @Retention(RetentionPolicy.SOURCE)
-    @interface MediaType {
-        int RINGTONE = 0;
-        int DIAL_TONE = 1;
-        int DISCONNECTED_TONE = 2;
-    }
 
     private static final Endpoint mEndpoint = new Endpoint();
     private MosaicAccount mAccount;
     private MosaicCall mCall = null;
-    private MediaPlayer mMediaPlayer;
-    private Uri mRingtoneUri;
-    private Vibrator mVibrator;
 
     private CallDisconnectedReceiver mCallDisconnectedReceiver;
 
@@ -93,10 +81,6 @@ public class MosaicService extends BackgroundService {
             Log.e(TAG, "Error establishing transport");
             e.printStackTrace();
         }
-
-        mRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(
-                this, RingtoneManager.TYPE_RINGTONE);
-        mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
 
         mCallDisconnectedReceiver = new CallDisconnectedReceiver();
         LocalBroadcastManager.getInstance(this).registerReceiver(
@@ -252,7 +236,7 @@ public class MosaicService extends BackgroundService {
         return mEndpoint;
     }
 
-    void startMediaPlayback(@MediaType int mediaType) {
+    void startMediaPlayback(@PlaybackService.MediaType int mediaType) {
         startService(new MosaicIntent().playMedia(this, mediaType));
     }
 
