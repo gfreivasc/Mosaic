@@ -97,7 +97,7 @@ public class PlaybackService extends Service {
                 break;
 
             case MediaType.DISCONNECTED_TONE:
-                afd = this.getResources().openRawResourceFd(R.raw.dial_tone);
+                afd = this.getResources().openRawResourceFd(R.raw.disconnected_tone);
                 mMediaPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
                 try {
                     mMediaPlayer.setDataSource(

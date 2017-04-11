@@ -115,12 +115,13 @@ class MosaicCall extends Call {
 
         if(ci!=null) {
             if (ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_DISCONNECTED) {
-                Log.d(TAG,"CALL DISCONNECTED");
-                // Call can be disconnected before answered
+                pjsip_status_code reason = ci.getLastStatusCode();
+                Log.d(TAG,"CALL DISCONNECTED REASON: " + reason);
+
+                mAccount.getService().stopMediaPlayback();
                 LocalBroadcastManager.getInstance(mAccount.getService()).sendBroadcast(
                         new MosaicIntent().disconnectedCall()
                 );
-                mAccount.getService().stopMediaPlayback();
                 delete();
             }else if(ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_CONFIRMED){
                 mAccount.getService().stopMediaPlayback();
@@ -164,7 +165,6 @@ class MosaicCall extends Call {
 
     void hangup() {
         CallOpParam prm = new CallOpParam();
-        prm.setStatusCode(pjsip_status_code.PJSIP_SC_DECLINE);
 
         try {
             super.hangup(prm);
