@@ -196,15 +196,18 @@ public class MosaicService extends BackgroundService {
     }
 
     private void handleAcceptCall() {
-        mCall.accept();
+        if (mCall != null)
+            mCall.accept();
     }
 
     private void handleDeclineCall() {
-        mCall.decline();
+        if (mCall != null)
+            mCall.decline();
     }
 
     private void  handleHangupCall() {
-        mCall.hangup();
+        if (mCall != null)
+            mCall.hangup();
     }
 
     @Override
