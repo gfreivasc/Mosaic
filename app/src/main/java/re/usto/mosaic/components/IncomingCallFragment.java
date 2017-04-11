@@ -38,6 +38,7 @@ public class IncomingCallFragment extends Fragment {
                 getActivity().startService(
                         new MosaicIntent().acceptCall(getActivity())
                 );
+                ((CallActivity)getActivity()).setDismissible(true);
                 getActivity().getFragmentManager().beginTransaction().replace(
                         R.id.call_layout, new OnCallFragment()
                 ).commit();

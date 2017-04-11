@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import re.usto.mosaic.CallActivity;
 import re.usto.mosaic.R;
 import re.usto.mosaic.engine.MosaicIntent;
 
@@ -28,9 +29,16 @@ public class OnCallFragment extends Fragment {
         hangupCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().startService(
-                        new MosaicIntent().hangupCall(getActivity())
-                );
+                if (((CallActivity)getActivity()).getConnected()) {
+                    ((CallActivity)getActivity()).setDismissed(true);
+                    getActivity().startService(
+                            new MosaicIntent().hangupCall(getActivity())
+                    );
+                }
+                else {
+                    getActivity().startService(new MosaicIntent().stopMedia(getActivity()));
+                    getActivity().finish();
+                }
             }
         });
         return rootView;

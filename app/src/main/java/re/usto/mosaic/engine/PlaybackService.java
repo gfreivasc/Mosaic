@@ -29,7 +29,7 @@ public class PlaybackService extends Service {
 
     @IntDef({MediaType.RINGTONE, MediaType.DIAL_TONE, MediaType.DISCONNECTED_TONE})
     @Retention(RetentionPolicy.SOURCE)
-    @interface MediaType {
+    public @interface MediaType {
         int RINGTONE = 0;
         int DIAL_TONE = 1;
         int DISCONNECTED_TONE = 2;

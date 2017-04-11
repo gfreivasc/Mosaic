@@ -134,13 +134,13 @@ public class MosaicIntent {
                 .setAction(MosaicIntent.ACTION_HANGUP_CALL);
     }
 
-    Intent playMedia(Context context, @PlaybackService.MediaType int mediaType) {
+    public Intent playMedia(Context context, @PlaybackService.MediaType int mediaType) {
         return new Intent(context, PlaybackService.class)
                 .setAction(ACTION_PLAY_MEDIA)
                 .putExtra(EXTRA_MEDIA_TYPE, mediaType);
     }
 
-    Intent stopMedia(Context context) {
+    public Intent stopMedia(Context context) {
         return new Intent(context, PlaybackService.class)
                 .setAction(ACTION_STOP_MEDIA);
     }
