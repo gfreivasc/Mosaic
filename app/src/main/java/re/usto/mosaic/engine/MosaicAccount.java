@@ -5,6 +5,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.pjsip.pjsua2.Account;
+import org.pjsip.pjsua2.CallInfo;
 import org.pjsip.pjsua2.OnIncomingCallParam;
 import org.pjsip.pjsua2.OnRegStateParam;
 
@@ -46,10 +47,20 @@ public class MosaicAccount extends Account {
             return;
         }
 
+        CallInfo ci = null;
+        try {
+            ci = call.getInfo();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
         mService.setCall(call);
         mService.startActivity(new Intent(mService, CallActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .setAction(MosaicIntent.ACTION_INCOMING_CALL));
+                .setAction(MosaicIntent.ACTION_INCOMING_CALL)
+                .putExtra(MosaicIntent.EXTRA_CALL_INFO,
+                        ci != null ? ci.getRemoteUri() : null));
     }
 
     MosaicService getService() {

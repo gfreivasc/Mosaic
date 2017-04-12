@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import re.usto.mosaic.CallActivity;
 import re.usto.mosaic.R;
@@ -45,6 +46,11 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
         View rootView = inflater.inflate(R.layout.fragment_on_call, container, false);
 
         Button hangupCall = (Button) rootView.findViewById(R.id.hangupCall);
+        TextView remoteUriView = (TextView) rootView.findViewById(R.id.callRemoteUri);
+
+        String remoteUri = ((CallActivity)getActivity()).getRemoteUri();
+        remoteUriView.setText(remoteUri != null ? remoteUri
+                : getActivity().getString(R.string.remote_uri_unknown));
 
         hangupCall.setOnClickListener(this);
         return rootView;

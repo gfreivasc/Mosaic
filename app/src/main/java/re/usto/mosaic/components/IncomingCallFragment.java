@@ -11,8 +11,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
+
+import org.pjsip.pjsua2.Call;
 
 import re.usto.mosaic.CallActivity;
+import re.usto.mosaic.Mosaic;
 import re.usto.mosaic.R;
 import re.usto.mosaic.engine.MosaicIntent;
 import re.usto.mosaic.engine.MosaicService;
@@ -47,6 +51,11 @@ public class IncomingCallFragment extends Fragment {
 
         Button acceptButton = (Button) rootView.findViewById(R.id.acceptButton);
         Button declineButton = (Button) rootView.findViewById(R.id.declineButton);
+        TextView remoteUriView = (TextView) rootView.findViewById(R.id.incomingRemoteUri);
+
+        String remoteUri = ((CallActivity)getActivity()).getRemoteUri();
+        remoteUriView.setText(remoteUri != null ? remoteUri
+                : getActivity().getString(R.string.remote_uri_unknown));
 
         acceptButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -20,10 +20,15 @@ import re.usto.mosaic.engine.PlaybackService;
 
 public class CallActivity extends AppCompatActivity {
 
+    private String mRemoteUri;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_call);
+
+        if (getIntent().hasExtra(MosaicIntent.EXTRA_CALL_INFO))
+            mRemoteUri = getIntent().getStringExtra(MosaicIntent.EXTRA_CALL_INFO);
 
         if (MosaicIntent.ACTION_INCOMING_CALL.equals(getIntent().getAction())) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
@@ -47,5 +52,9 @@ public class CallActivity extends AppCompatActivity {
         startService(new MosaicIntent().stopMedia(this));
         startService(new MosaicIntent().hangupCall(this));
         super.onDestroy();
+    }
+
+    public String getRemoteUri() {
+        return mRemoteUri;
     }
 }

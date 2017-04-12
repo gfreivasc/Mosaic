@@ -49,6 +49,7 @@ public class MosaicIntent {
     public static final String EXTRA_REGISTRATION_STATE = "extraConnectionStatus";
     public static final String EXTRA_USER_KEY = "userId";
     public static final String EXTRA_CALL_DESTINY = "callDestiny";
+    public static final String EXTRA_CALL_INFO = "callInfo";
     static final String EXTRA_MEDIA_TYPE = "mediaType";
 
     public static class FilterBuilder {

@@ -18,6 +18,7 @@ import android.widget.Toast;
 import org.pjsip.pjsua2.AccountConfig;
 import org.pjsip.pjsua2.AuthCredInfo;
 import org.pjsip.pjsua2.Call;
+import org.pjsip.pjsua2.CallInfo;
 import org.pjsip.pjsua2.CallOpParam;
 import org.pjsip.pjsua2.Endpoint;
 import org.pjsip.pjsua2.EpConfig;
@@ -180,6 +181,7 @@ public class MosaicService extends BackgroundService {
 
         mCall = new MosaicCall(mAccount);
         CallOpParam prm = new CallOpParam(true);
+
         prm.setStatusCode(pjsip_status_code.PJSIP_SC_OK);
         try {
             mCall.makeCall(destUri, prm);
@@ -190,9 +192,19 @@ public class MosaicService extends BackgroundService {
             return;
         }
 
+        CallInfo ci = null;
+        try {
+            ci = mCall.getInfo();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
         startActivity(new Intent(this, CallActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .setAction(MosaicIntent.ACTION_MAKE_CALL));
+                .setAction(MosaicIntent.ACTION_MAKE_CALL)
+                .putExtra(MosaicIntent.EXTRA_CALL_INFO,
+                        ci != null ? ci.getRemoteUri() : null));
     }
 
     private void handleAcceptCall() {
