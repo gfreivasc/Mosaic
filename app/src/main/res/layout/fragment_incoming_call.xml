@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="re.usto.mosaic.CallActivity">
+    tools:context="re.usto.mosaic.ExampleCallActivity">
 
     <Button
         android:id="@+id/declineButton"

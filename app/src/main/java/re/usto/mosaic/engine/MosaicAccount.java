@@ -9,7 +9,7 @@ import org.pjsip.pjsua2.CallInfo;
 import org.pjsip.pjsua2.OnIncomingCallParam;
 import org.pjsip.pjsua2.OnRegStateParam;
 
-import re.usto.mosaic.CallActivity;
+import re.usto.mosaic.ExampleCallActivity;
 
 /**
  * @author gabriel on 21/03/17.
@@ -56,7 +56,7 @@ public class MosaicAccount extends Account {
         }
 
         mService.setCall(call);
-        mService.startActivity(new Intent(mService, CallActivity.class)
+        mService.startActivity(new Intent(mService, mService.getCallActivity())
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 .setAction(MosaicIntent.ACTION_INCOMING_CALL)
                 .putExtra(MosaicIntent.EXTRA_CALL_INFO,

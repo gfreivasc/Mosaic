@@ -33,7 +33,10 @@ public class Mosaic extends Application {
                 new ConnectionStatusReceiver(),
                 new MosaicIntent.FilterBuilder().addConnectivityChangeAction().build()
         );
-        
+
+        startService(new MosaicIntent().startService(this,
+                ExampleCallActivity.class.getCanonicalName()));
+
         startService(
                 new MosaicIntent().registerUser(this,
                         PreferenceManager.getDefaultSharedPreferences(this).getString(

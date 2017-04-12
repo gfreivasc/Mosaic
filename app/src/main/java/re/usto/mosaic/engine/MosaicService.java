@@ -3,17 +3,9 @@ package re.usto.mosaic.engine;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.AssetFileDescriptor;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.os.Vibrator;
-import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.pjsip.pjsua2.AccountConfig;
 import org.pjsip.pjsua2.AuthCredInfo;
@@ -27,14 +19,7 @@ import org.pjsip.pjsua2.pjsip_status_code;
 import org.pjsip.pjsua2.pjsip_transport_type_e;
 import org.pjsip.pjsua2.pjsua_stun_use;
 
-import java.io.IOException;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.Locale;
-
-import re.usto.mosaic.CallActivity;
-import re.usto.mosaic.Mosaic;
-import re.usto.mosaic.R;
 
 /**
  * @author gabriel & lucas on 23/03/17.
@@ -53,6 +38,7 @@ public class MosaicService extends BackgroundService {
     private MosaicCall mCall = null;
 
     private CallDisconnectedReceiver mCallDisconnectedReceiver;
+    private Class<?> mCallActivity;
 
     public MosaicService() {
         super(TAG);
@@ -92,10 +78,15 @@ public class MosaicService extends BackgroundService {
 
     @Override
     protected void onReceivedIntent(@Nullable Intent intent) {
-        if (intent == null || intent.getAction() == null)
+        if (intent == null || intent.getAction() == null) {
             return;
+        }
 
         switch (intent.getAction()) {
+            case MosaicIntent.ACTION_START_SERVICE:
+                handleStartService(intent);
+                break;
+
             case MosaicIntent.ACTION_REGISTER_USER:
                 handleRegister(intent);
                 break;
@@ -119,6 +110,22 @@ public class MosaicService extends BackgroundService {
             case MosaicIntent.ACTION_HANGUP_CALL:
                 handleHangupCall();
                 break;
+        }
+    }
+
+    private void handleStartService(Intent intent) {
+        if (intent.hasExtra(MosaicIntent.EXTRA_CALL_ACTIVITY_CLASS_NAME)) {
+            try {
+                mCallActivity = Class.forName(
+                        intent.getStringExtra(MosaicIntent.EXTRA_CALL_ACTIVITY_CLASS_NAME));
+            }
+            catch (ClassNotFoundException e) {
+                Log.e(TAG, "Class is name not found", e);
+            }
+
+            if (!CallActivity.class.isAssignableFrom(mCallActivity)) {
+                throw new ClassCastException("Class is not a subclass of Mosaic's CallActivity.");
+            }
         }
     }
 
@@ -200,7 +207,7 @@ public class MosaicService extends BackgroundService {
             e.printStackTrace();
         }
 
-        startActivity(new Intent(this, CallActivity.class)
+        startActivity(new Intent(this, mCallActivity)
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 .setAction(MosaicIntent.ACTION_MAKE_CALL)
                 .putExtra(MosaicIntent.EXTRA_CALL_INFO,
@@ -249,6 +256,10 @@ public class MosaicService extends BackgroundService {
 
     Endpoint getEp(){
         return mEndpoint;
+    }
+
+    Class getCallActivity() {
+        return mCallActivity;
     }
 
     void startMediaPlayback(@PlaybackService.MediaType int mediaType) {

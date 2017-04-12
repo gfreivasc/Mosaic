@@ -39,6 +39,9 @@ public class MosaicIntent {
     public static final String ACTION_DISCONNECTED_CALL =
             "re.usto.mosaic.DISCONNECTED_CALL";
 
+    public static final String ACTION_START_SERVICE =
+            "re.usto.mosaic.START_SERVICE";
+
     static final String ACTION_PLAY_MEDIA =
             "re.usto.mosaic.PLAY_MEDIA";
 
@@ -50,6 +53,7 @@ public class MosaicIntent {
     public static final String EXTRA_USER_KEY = "userId";
     public static final String EXTRA_CALL_DESTINY = "callDestiny";
     public static final String EXTRA_CALL_INFO = "callInfo";
+    public static final String EXTRA_CALL_ACTIVITY_CLASS_NAME = "callActivityClassName";
     static final String EXTRA_MEDIA_TYPE = "mediaType";
 
     public static class FilterBuilder {
@@ -122,17 +126,23 @@ public class MosaicIntent {
 
     public Intent acceptCall(Context context) {
         return new Intent(context, MosaicService.class)
-                .setAction(MosaicIntent.ACTION_ACCEPT_CALL);
+                .setAction(ACTION_ACCEPT_CALL);
     }
 
     public Intent declineCall(Context context) {
         return new Intent(context, MosaicService.class)
-                .setAction(MosaicIntent.ACTION_DECLINE_CALL);
+                .setAction(ACTION_DECLINE_CALL);
     }
 
     public Intent hangupCall(Context context) {
         return new Intent(context, MosaicService.class)
-                .setAction(MosaicIntent.ACTION_HANGUP_CALL);
+                .setAction(ACTION_HANGUP_CALL);
+    }
+
+    public Intent startService(Context context, String callActivityClassName) {
+        return new Intent(context, MosaicService.class)
+                .setAction(ACTION_START_SERVICE)
+                .putExtra(EXTRA_CALL_ACTIVITY_CLASS_NAME, callActivityClassName);
     }
 
     public Intent playMedia(Context context, @PlaybackService.MediaType int mediaType) {

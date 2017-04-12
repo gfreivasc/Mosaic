@@ -13,13 +13,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.pjsip.pjsua2.Call;
-
-import re.usto.mosaic.CallActivity;
-import re.usto.mosaic.Mosaic;
+import re.usto.mosaic.ExampleCallActivity;
 import re.usto.mosaic.R;
 import re.usto.mosaic.engine.MosaicIntent;
-import re.usto.mosaic.engine.MosaicService;
 
 /**
  * Created by gabriel on 03/04/17.
@@ -53,7 +49,7 @@ public class IncomingCallFragment extends Fragment {
         Button declineButton = (Button) rootView.findViewById(R.id.declineButton);
         TextView remoteUriView = (TextView) rootView.findViewById(R.id.incomingRemoteUri);
 
-        String remoteUri = ((CallActivity)getActivity()).getRemoteUri();
+        String remoteUri = ((ExampleCallActivity)getActivity()).getRemoteUri();
         remoteUriView.setText(remoteUri != null ? remoteUri
                 : getActivity().getString(R.string.remote_uri_unknown));
 

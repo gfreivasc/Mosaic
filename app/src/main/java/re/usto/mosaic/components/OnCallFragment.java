@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import re.usto.mosaic.CallActivity;
+import re.usto.mosaic.ExampleCallActivity;
 import re.usto.mosaic.R;
 import re.usto.mosaic.engine.MosaicIntent;
 import re.usto.mosaic.engine.PlaybackService;
@@ -48,7 +48,7 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
         Button hangupCall = (Button) rootView.findViewById(R.id.hangupCall);
         TextView remoteUriView = (TextView) rootView.findViewById(R.id.callRemoteUri);
 
-        String remoteUri = ((CallActivity)getActivity()).getRemoteUri();
+        String remoteUri = ((ExampleCallActivity)getActivity()).getRemoteUri();
         remoteUriView.setText(remoteUri != null ? remoteUri
                 : getActivity().getString(R.string.remote_uri_unknown));
 
