@@ -47,8 +47,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 new MosaicIntent.FilterBuilder().addRegistrationStateAction().build()
         );
 
-        startService(new MosaicIntent().registerUser(this));
-
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
@@ -91,8 +89,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public class RegistrationStateReceiver extends BroadcastReceiver {
-
-        private boolean retry = true;
 
         @Override
         public void onReceive(Context context, Intent intent) {
