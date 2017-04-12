@@ -14,6 +14,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -56,6 +57,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
+    public View onCreateView(String name, Context context, AttributeSet attrs) {
+        View rtn = super.onCreateView(name, context, attrs);
+        startService(new MosaicIntent().getRegState(this));
+        return rtn;
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -93,18 +101,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.hasExtra(MosaicIntent.EXTRA_REGISTRATION_STATE)) {
-                String statusCode = intent.getStringExtra(
-                                MosaicIntent.EXTRA_REGISTRATION_STATE);
+                mOnline = intent.getBooleanExtra(
+                                MosaicIntent.EXTRA_REGISTRATION_STATE, false);
 
-                switch (statusCode) {
-                    case "PJSIP_SC_OK":
-                        mConnectionStatusText.setText(getString(R.string.status_on));
-                        mOnline = true;
-                        break;
-                    default:
-                        mConnectionStatusText.setText(getString(R.string.status_off));
-                        mOnline = false;
-                }
+                if (mOnline)
+                    mConnectionStatusText.setText(getString(R.string.status_on));
+                else
+                    mConnectionStatusText.setText(getString(R.string.status_off));
             }
         }
     }

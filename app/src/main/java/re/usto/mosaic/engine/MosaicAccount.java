@@ -8,6 +8,7 @@ import org.pjsip.pjsua2.Account;
 import org.pjsip.pjsua2.CallInfo;
 import org.pjsip.pjsua2.OnIncomingCallParam;
 import org.pjsip.pjsua2.OnRegStateParam;
+import org.pjsip.pjsua2.pjsip_status_code;
 
 import re.usto.mosaic.ExampleCallActivity;
 
@@ -29,9 +30,8 @@ public class MosaicAccount extends Account {
         super.onRegState(prm);
         Log.v(TAG, "User reg code " + prm.getCode().toString());
 
-        LocalBroadcastManager.getInstance(mService).sendBroadcast(
-                new MosaicIntent().updateRegistrationState(prm.getCode())
-        );
+        mService.setOnlineStatus(
+                prm.getCode().toString().equals(pjsip_status_code.PJSIP_SC_OK.toString()));
     }
 
     @Override

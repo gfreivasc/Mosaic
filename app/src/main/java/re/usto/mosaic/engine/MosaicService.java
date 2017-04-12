@@ -35,6 +35,7 @@ public class MosaicService extends BackgroundService {
 
     private static final Endpoint mEndpoint = new Endpoint();
     private MosaicAccount mAccount;
+    private boolean mOnline = false;
     private MosaicCall mCall = null;
 
     private CallDisconnectedReceiver mCallDisconnectedReceiver;
@@ -89,6 +90,10 @@ public class MosaicService extends BackgroundService {
 
             case MosaicIntent.ACTION_REGISTER_USER:
                 handleRegister(intent);
+                break;
+
+            case MosaicIntent.ACTION_GET_REGISTRATION_STATE:
+                getOnlineStatus();
                 break;
 
             case MosaicIntent.ACTION_CONNECTIVITY_CHANGE:
@@ -252,6 +257,20 @@ public class MosaicService extends BackgroundService {
 
     public void setCall(MosaicCall call) {
         mCall = call;
+    }
+
+    void setOnlineStatus(boolean status) {
+        LocalBroadcastManager.getInstance(this).sendBroadcast(
+                new MosaicIntent().updatedRegistrationState(mOnline)
+        );
+        mOnline = status;
+    }
+
+    boolean getOnlineStatus() {
+        LocalBroadcastManager.getInstance(this).sendBroadcast(
+                new MosaicIntent().updatedRegistrationState(mOnline)
+        );
+        return mOnline;
     }
 
     Endpoint getEp(){

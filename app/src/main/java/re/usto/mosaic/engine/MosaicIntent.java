@@ -12,8 +12,11 @@ import org.pjsip.pjsua2.pjsip_status_code;
 
 public class MosaicIntent {
 
-    public static final String ACTION_UPDATE_REGISTRATION_STATE =
-            "re.usto.mosaic.UPDATE_REGISTRATION_STATE";
+    public static final String ACTION_UPDATED_REGISTRATION_STATE =
+            "re.usto.mosaic.UPDATED_REGISTRATION_STATE";
+
+    public static final String ACTION_GET_REGISTRATION_STATE =
+            "re.usto.mosaic.GET_REGISTRATION_STATE";
 
     public static final String ACTION_CONNECTIVITY_CHANGE =
             "android.net.conn.CONNECTIVITY_CHANGE";
@@ -56,6 +59,9 @@ public class MosaicIntent {
     public static final String EXTRA_CALL_ACTIVITY_CLASS_NAME = "callActivityClassName";
     static final String EXTRA_MEDIA_TYPE = "mediaType";
 
+    /*
+     * Filters for BroadcastReceivers
+     */
     public static class FilterBuilder {
 
         private IntentFilter filter;
@@ -65,7 +71,7 @@ public class MosaicIntent {
         }
 
         public FilterBuilder addRegistrationStateAction() {
-            filter.addAction(ACTION_UPDATE_REGISTRATION_STATE);
+            filter.addAction(ACTION_UPDATED_REGISTRATION_STATE);
             return this;
         }
 
@@ -89,25 +95,11 @@ public class MosaicIntent {
         }
     }
 
-    public Intent registerUser(Context context, String userKey) {
-        return new Intent(context, MosaicService.class)
-                .setAction(ACTION_REGISTER_USER)
-                .putExtra(EXTRA_USER_KEY, userKey);
-    }
-
-    public Intent registerUser(Context context) {
-        return new Intent(context, MosaicService.class)
-                .setAction(ACTION_REGISTER_USER);
-    }
-
-    Intent updateRegistrationState(pjsip_status_code statusCode) {
+    // Broadcast Intents
+    Intent updatedRegistrationState(boolean state) {
         return new Intent()
-                .setAction(ACTION_UPDATE_REGISTRATION_STATE)
-                .putExtra(EXTRA_REGISTRATION_STATE, statusCode.toString());
-    }
-
-    Intent connectivityChanged(Context context) {
-        return new Intent(context, MosaicService.class).setAction(ACTION_CONNECTIVITY_CHANGE);
+                .setAction(ACTION_UPDATED_REGISTRATION_STATE)
+                .putExtra(EXTRA_REGISTRATION_STATE, state);
     }
 
     Intent receivingIncomingCall() {
@@ -118,10 +110,31 @@ public class MosaicIntent {
         return new Intent().setAction(ACTION_DISCONNECTED_CALL);
     }
 
+    public Intent startService(Context context, String callActivityClassName) {
+        return new Intent(context, MosaicService.class)
+                .setAction(ACTION_START_SERVICE)
+                .putExtra(EXTRA_CALL_ACTIVITY_CLASS_NAME, callActivityClassName);
+    }
+
+    // MosaicService calls
     public Intent makeCall(Context context, String destiny) {
         return new Intent(context, MosaicService.class)
                 .setAction(ACTION_MAKE_CALL)
                 .putExtra(EXTRA_CALL_DESTINY, destiny);
+    }
+
+    public Intent registerUser(Context context, String userKey) {
+        return new Intent(context, MosaicService.class)
+                .setAction(ACTION_REGISTER_USER)
+                .putExtra(EXTRA_USER_KEY, userKey);
+    }
+
+    public Intent getRegState(Context context) {
+        return new Intent(context, MosaicService.class).setAction(ACTION_GET_REGISTRATION_STATE);
+    }
+
+    Intent connectivityChanged(Context context) {
+        return new Intent(context, MosaicService.class).setAction(ACTION_CONNECTIVITY_CHANGE);
     }
 
     public Intent acceptCall(Context context) {
@@ -137,12 +150,6 @@ public class MosaicIntent {
     public Intent hangupCall(Context context) {
         return new Intent(context, MosaicService.class)
                 .setAction(ACTION_HANGUP_CALL);
-    }
-
-    public Intent startService(Context context, String callActivityClassName) {
-        return new Intent(context, MosaicService.class)
-                .setAction(ACTION_START_SERVICE)
-                .putExtra(EXTRA_CALL_ACTIVITY_CLASS_NAME, callActivityClassName);
     }
 
     public Intent playMedia(Context context, @PlaybackService.MediaType int mediaType) {
