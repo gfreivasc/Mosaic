@@ -4,9 +4,12 @@ import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,14 +27,34 @@ import re.usto.mosaic.engine.PlaybackService;
 
 public class OnCallFragment extends Fragment implements View.OnClickListener {
 
+    private static final String TAG = OnCallFragment.class.getSimpleName();
     private boolean mDisconnected = false;
     private boolean mDismissed = false;
+    private PowerManager.WakeLock mProximityWakeLock;
     private CallDisconnectedReceiver mReceiver;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        PowerManager pm = (PowerManager) getActivity().getSystemService(
+                AppCompatActivity.POWER_SERVICE);
+
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+            mProximityWakeLock = pm.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, TAG);
+        }
+        else {
+            int WAKE_LOCK = -1;
+            try {
+                WAKE_LOCK = PowerManager.class.getClass().getField(
+                        "PROXIMITY_SCREEN_OFF_WAKE_LOCK"
+                ).getInt(-1);
+            }
+            catch (Throwable ignored) { }
+            mProximityWakeLock = pm.newWakeLock(WAKE_LOCK, TAG);
+        }
+
+        mProximityWakeLock.acquire();
         mReceiver = new CallDisconnectedReceiver();
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
                 mReceiver,
@@ -88,6 +111,7 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onDestroy() {
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mReceiver);
+        mProximityWakeLock.release();
         super.onDestroy();
     }
 }
