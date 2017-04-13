@@ -57,13 +57,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public View onCreateView(String name, Context context, AttributeSet attrs) {
-        View rtn = super.onCreateView(name, context, attrs);
-        startService(new MosaicIntent().getRegState(this));
-        return rtn;
-    }
-
-    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -82,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if (!mOnline) {
+            startService(new MosaicIntent().getRegState(this));
             Toast.makeText(
                     this,
                     "Não foi possível contactar o servidor. Tente novamente mais tarde",
