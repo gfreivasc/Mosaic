@@ -42,7 +42,7 @@ public class MosaicAccount extends Account {
         MosaicCall call = new MosaicCall(this, prm.getCallId());
 
         if (mService.getCall() != null) {
-            call.decline();
+            call.busyHere();
             call.delete();
             return;
         }

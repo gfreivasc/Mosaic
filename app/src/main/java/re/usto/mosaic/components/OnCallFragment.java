@@ -14,9 +14,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import re.usto.mosaic.ExampleCallActivity;
+import re.usto.mosaic.Mosaic;
 import re.usto.mosaic.R;
 import re.usto.mosaic.engine.MosaicIntent;
 import re.usto.mosaic.engine.PlaybackService;
@@ -31,7 +33,9 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
     private boolean mDisconnected = false;
     private boolean mDismissed = false;
     private PowerManager.WakeLock mProximityWakeLock;
-    private CallDisconnectedReceiver mReceiver;
+    private OnCallReceiver mReceiver;
+    private boolean mMuteMic = false;
+    private ImageView mToggleMuteMic;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,10 +59,13 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
         }
 
         mProximityWakeLock.acquire();
-        mReceiver = new CallDisconnectedReceiver();
+        mReceiver = new OnCallReceiver();
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
                 mReceiver,
-                new MosaicIntent.FilterBuilder().addDisconnectedCallAction().build()
+                new MosaicIntent.FilterBuilder()
+                        .addDisconnectedCallAction()
+                        .addToggleMuteMicAction()
+                        .build()
         );
     }
 
@@ -70,26 +77,45 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
 
         Button hangupCall = (Button) rootView.findViewById(R.id.hangupCall);
         TextView remoteUriView = (TextView) rootView.findViewById(R.id.callRemoteUri);
+        mToggleMuteMic = (ImageView) rootView.findViewById(R.id.toggleMuteMic);
 
         String remoteUri = ((ExampleCallActivity)getActivity()).getRemoteUri();
         remoteUriView.setText(remoteUri != null ? remoteUri
                 : getActivity().getString(R.string.remote_uri_unknown));
 
         hangupCall.setOnClickListener(this);
+
+        mToggleMuteMic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().startService(new MosaicIntent().toggleMuteMic(getActivity()));
+            }
+        });
         return rootView;
     }
 
-    class CallDisconnectedReceiver extends BroadcastReceiver {
+    class OnCallReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (mDismissed) {
-                getActivity().finish();
-            }
-            else {
-                getActivity().startService(new MosaicIntent().playMedia(
-                        getActivity(), PlaybackService.MediaType.DISCONNECTED_TONE
-                ));
-                mDisconnected = true;
+            switch (intent.getAction()) {
+                case MosaicIntent.ACTION_DISCONNECTED_CALL:
+                    if (mDismissed) {
+                        getActivity().finish();
+                    } else {
+                        getActivity().startService(new MosaicIntent().playMedia(
+                                getActivity(), PlaybackService.MediaType.DISCONNECTED_TONE
+                        ));
+                        mDisconnected = true;
+                    }
+                    break;
+
+                case MosaicIntent.ACTION_TOGGLE_MUTE_MICROPHONE:
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        mMuteMic = !mMuteMic;
+                        mToggleMuteMic.setImageDrawable(getActivity().getDrawable(
+                                mMuteMic ? R.drawable.ic_mic_off_black_24dp
+                                        : R.drawable.ic_mic_black_24dp));
+                    }
             }
         }
     }

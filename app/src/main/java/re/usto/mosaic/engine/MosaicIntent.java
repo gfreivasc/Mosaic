@@ -43,6 +43,12 @@ public class MosaicIntent {
     public static final String ACTION_START_SERVICE =
             "re.usto.mosaic.START_SERVICE";
 
+    public static final String ACTION_TOGGLE_MUTE_MICROPHONE =
+            "re.usto.mosaic.TOGGLE_MUTE_MICROPHONE";
+
+    static final String ACTION_MUTE_AUDIO =
+            "re.usto.mosaic.MUTE_AUDIO";
+
     static final String ACTION_PLAY_MEDIA =
             "re.usto.mosaic.PLAY_MEDIA";
 
@@ -78,13 +84,13 @@ public class MosaicIntent {
             return this;
         }
 
-        public FilterBuilder addIncomingCallAction() {
-            filter.addAction(ACTION_INCOMING_CALL);
+        public FilterBuilder addDisconnectedCallAction() {
+            filter.addAction(ACTION_DISCONNECTED_CALL);
             return this;
         }
 
-        public FilterBuilder addDisconnectedCallAction() {
-            filter.addAction(ACTION_DISCONNECTED_CALL);
+        public FilterBuilder addToggleMuteMicAction() {
+            filter.addAction(ACTION_TOGGLE_MUTE_MICROPHONE);
             return this;
         }
 
@@ -104,13 +110,17 @@ public class MosaicIntent {
         return new Intent().setAction(ACTION_DISCONNECTED_CALL);
     }
 
+    Intent toggleMuteMic() {
+        return new Intent().setAction(ACTION_TOGGLE_MUTE_MICROPHONE);
+    }
+
+    // MosaicService calls
     public Intent startService(Context context, String callActivityClassName) {
         return new Intent(context, MosaicService.class)
                 .setAction(ACTION_START_SERVICE)
                 .putExtra(EXTRA_CALL_ACTIVITY_CLASS_NAME, callActivityClassName);
     }
 
-    // MosaicService calls
     public Intent makeCall(Context context, String destiny) {
         return new Intent(context, MosaicService.class)
                 .setAction(ACTION_MAKE_CALL)
@@ -144,6 +154,11 @@ public class MosaicIntent {
     public Intent hangupCall(Context context) {
         return new Intent(context, MosaicService.class)
                 .setAction(ACTION_HANGUP_CALL);
+    }
+
+    public Intent toggleMuteMic(Context context) {
+        return new Intent(context, MosaicService.class)
+                .setAction(ACTION_TOGGLE_MUTE_MICROPHONE);
     }
 
     public Intent playMedia(Context context, @PlaybackService.MediaType int mediaType) {

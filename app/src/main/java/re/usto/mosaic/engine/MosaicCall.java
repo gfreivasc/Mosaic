@@ -25,6 +25,7 @@ class MosaicCall extends Call {
 
     private static final String TAG = MosaicCall.class.getSimpleName();
     private MosaicAccount mAccount;
+    private boolean mMicMute = false;
 
     MosaicCall(MosaicAccount account) {
         super(account);
@@ -139,6 +140,48 @@ class MosaicCall extends Call {
         }
     }
 
+    void toggleMuteMic() {
+        CallInfo ci = null;
+        try {
+            ci = getInfo();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (ci == null || ci.getState() != pjsip_inv_state.PJSIP_INV_STATE_CONFIRMED)
+            return;
+
+        mMicMute = !mMicMute;
+
+        for (int i = 0; i < ci.getMedia().size(); i++) {
+            Media media = getMedia(i);
+            CallMediaInfo mediaInfo = ci.getMedia().get(i);
+
+            if (mediaInfo.getType() == pjmedia_type.PJMEDIA_TYPE_AUDIO
+                    && media != null
+                    && mediaInfo.getStatus() == pjsua_call_media_status.PJSUA_CALL_MEDIA_ACTIVE) {
+                AudioMedia audioMedia = AudioMedia.typecastFromMedia(media);
+
+                try {
+                    AudDevManager mgr = mAccount.getService().getEp().audDevManager();
+
+                    if (mMicMute) {
+                        mgr.getCaptureDevMedia().stopTransmit(audioMedia);
+                    } else {
+                        mgr.getCaptureDevMedia().startTransmit(audioMedia);
+                    }
+
+                } catch (Exception exc) {
+                    Log.e(TAG, "Couldn't manage audio capture transmission", exc);
+                }
+            }
+        }
+
+        LocalBroadcastManager.getInstance(mAccount.getService()).sendBroadcast(
+                new MosaicIntent().toggleMuteMic()
+        );
+    }
+
     void accept() {
         CallOpParam prm = new CallOpParam();
         prm.setStatusCode(pjsip_status_code.PJSIP_SC_OK);
@@ -160,6 +203,18 @@ class MosaicCall extends Call {
         }
         catch (Exception e) {
             Log.e(TAG, "Error declining call ", e);
+        }
+    }
+
+    void busyHere() {
+        CallOpParam prm = new CallOpParam();
+        prm.setStatusCode(pjsip_status_code.PJSIP_SC_BUSY_HERE);
+
+        try {
+            answer(prm);
+        }
+        catch (Exception e) {
+            Log.e(TAG, "Error sending busy state ", e);
         }
     }
 
