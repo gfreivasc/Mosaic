@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-import org.pjsip.pjsua2.pjsip_status_code;
-
 /**
  * Created by gabriel on 27/03/17.
  */
@@ -100,10 +98,6 @@ public class MosaicIntent {
         return new Intent()
                 .setAction(ACTION_UPDATED_REGISTRATION_STATE)
                 .putExtra(EXTRA_REGISTRATION_STATE, state);
-    }
-
-    Intent receivingIncomingCall() {
-        return new Intent().setAction(ACTION_INCOMING_CALL);
     }
 
     Intent disconnectedCall() {
