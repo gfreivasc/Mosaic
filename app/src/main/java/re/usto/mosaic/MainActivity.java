@@ -31,6 +31,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView mConnectionStatusText;
     private RegistrationStateReceiver mRegStateReceiver;
     private boolean mOnline = false;
+    private static final int mStatusRefreshInterval = 1000;
+    private static final int mOnlineRefreshInterval = 10 * mStatusRefreshInterval;
+    private Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +50,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mRegStateReceiver,
                 new MosaicIntent.FilterBuilder().addRegistrationStateAction().build()
         );
+
+        mHandler = new Handler();
+        mStatusRefresh.run();
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -75,7 +81,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if (!mOnline) {
-            startService(new MosaicIntent().getRegState(this));
             Toast.makeText(
                     this,
                     "Não foi possível contactar o servidor. Tente novamente mais tarde",
@@ -90,6 +95,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         )));
     }
 
+    private Runnable mStatusRefresh = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                startService(new MosaicIntent().getRegState(MainActivity.this));
+            }
+            finally {
+                mHandler.postDelayed(mStatusRefresh,
+                        mOnline ? mOnlineRefreshInterval : mStatusRefreshInterval);
+            }
+        }
+    };
+
     public class RegistrationStateReceiver extends BroadcastReceiver {
 
         @Override
@@ -98,10 +116,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mOnline = intent.getBooleanExtra(
                                 MosaicIntent.EXTRA_REGISTRATION_STATE, false);
 
-                if (mOnline)
-                    mConnectionStatusText.setText(getString(R.string.status_on));
-                else
-                    mConnectionStatusText.setText(getString(R.string.status_off));
+                mConnectionStatusText.setText(getString(
+                        mOnline ? R.string.status_on : R.string.status_off));
             }
         }
     }
@@ -127,5 +143,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LocalBroadcastManager.getInstance(this).unregisterReceiver(
                 mRegStateReceiver);
         super.onDestroy();
+        mHandler.removeCallbacks(mStatusRefresh);
     }
 }
