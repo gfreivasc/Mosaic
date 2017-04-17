@@ -127,6 +127,9 @@ class MosaicCall extends Call {
                 delete();
             }else if(ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_CONFIRMED){
                 mAccount.getService().stopMediaPlayback();
+                LocalBroadcastManager.getInstance(mAccount.getService()).sendBroadcast(
+                        new MosaicIntent().confirmedCall()
+                );
                 Log.d(TAG,"CALL CONFIRMED");
             }else if(ci.getState() == pjsip_inv_state.PJSIP_INV_STATE_CALLING){
                 mAccount.getService().startMediaPlayback(PlaybackService.MediaType.DIAL_TONE);

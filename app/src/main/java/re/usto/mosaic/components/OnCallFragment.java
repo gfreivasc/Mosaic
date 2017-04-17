@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import re.usto.mosaic.ExampleCallActivity;
 import re.usto.mosaic.R;
+import re.usto.mosaic.engine.CallActivity;
 import re.usto.mosaic.engine.MosaicIntent;
 import re.usto.mosaic.engine.PlaybackService;
 
@@ -29,6 +30,7 @@ import re.usto.mosaic.engine.PlaybackService;
 public class OnCallFragment extends Fragment implements View.OnClickListener {
 
     private static final String TAG = OnCallFragment.class.getSimpleName();
+    private boolean mDialing = false;
     private boolean mDisconnected = false;
     private boolean mDismissed = false;
     private PowerManager.WakeLock mProximityWakeLock;
@@ -37,10 +39,14 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
     private boolean mMuteAudio = false;
     private ImageView mToggleMuteMic;
     private ImageView mToggleMuteAudio;
+    private TextView mCallStateView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (getArguments().containsKey(CallActivity.DIALING))
+            mDialing = getArguments().getBoolean(CallActivity.DIALING);
 
         PowerManager pm = (PowerManager) getActivity().getSystemService(
                 AppCompatActivity.POWER_SERVICE);
@@ -65,6 +71,7 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
                 mReceiver,
                 new MosaicIntent.FilterBuilder()
                         .addDisconnectedCallAction()
+                        .addConfirmedCallAction()
                         .addToggleMuteMicAction()
                         .addToggleMuteAudioAction()
                         .build()
@@ -81,6 +88,13 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
         TextView remoteUriView = (TextView) rootView.findViewById(R.id.callRemoteUri);
         mToggleMuteMic = (ImageView) rootView.findViewById(R.id.toggleMuteMic);
         mToggleMuteAudio = (ImageView) rootView.findViewById(R.id.toggleMuteAudio);
+        mCallStateView = (TextView) rootView.findViewById(R.id.callState);
+
+        if (mDialing) {
+            mToggleMuteMic.setVisibility(View.INVISIBLE);
+            mToggleMuteAudio.setVisibility(View.INVISIBLE);
+            mCallStateView.setText(getString(R.string.state_calling));
+        }
 
         String remoteUri = ((ExampleCallActivity)getActivity()).getRemoteUri();
         remoteUriView.setText(remoteUri != null ? remoteUri
@@ -116,7 +130,15 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
                                 getActivity(), PlaybackService.MediaType.DISCONNECTED_TONE
                         ));
                         mDisconnected = true;
+                        mCallStateView.setText(R.string.state_disconnected);
                     }
+                    break;
+
+                case MosaicIntent.ACTION_CONFIRMED_CALL:
+                    mDialing = false;
+                    mCallStateView.setText("00:00");
+                    mToggleMuteMic.setVisibility(View.VISIBLE);
+                    mToggleMuteAudio.setVisibility(View.VISIBLE);
                     break;
 
                 case MosaicIntent.ACTION_TOGGLE_MUTE_MICROPHONE:

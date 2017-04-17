@@ -40,6 +40,9 @@ public class MosaicIntent {
     public static final String ACTION_DISCONNECTED_CALL =
             "re.usto.mosaic.DISCONNECTED_CALL";
 
+    public static final String ACTION_CONFIRMED_CALL =
+            "re.usto.mosaic.CONFIRMED_CALL";
+
     public static final String ACTION_START_SERVICE =
             "re.usto.mosaic.START_SERVICE";
 
@@ -89,6 +92,11 @@ public class MosaicIntent {
             return this;
         }
 
+        public FilterBuilder addConfirmedCallAction() {
+            filter.addAction(ACTION_CONFIRMED_CALL);
+            return this;
+        }
+
         public FilterBuilder addToggleMuteMicAction() {
             filter.addAction(ACTION_TOGGLE_MUTE_MICROPHONE);
             return this;
@@ -114,6 +122,8 @@ public class MosaicIntent {
     Intent disconnectedCall() {
         return new Intent().setAction(ACTION_DISCONNECTED_CALL);
     }
+
+    Intent confirmedCall() { return new Intent().setAction(ACTION_CONFIRMED_CALL); }
 
     Intent toggleMuteMic() {
         return new Intent().setAction(ACTION_TOGGLE_MUTE_MICROPHONE);

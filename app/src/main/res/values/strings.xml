@@ -20,4 +20,7 @@
     <string name="decline_call">Recusar</string>
     <string name="hangup_call">Desligar</string>
     <string name="remote_uri_unknown">Desconhecido</string>
+
+    <string name="state_calling">Discando&#8230;</string>
+    <string name="state_disconnected">Chamada terminada</string>
 </resources>

@@ -1,5 +1,6 @@
 package re.usto.mosaic.engine;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.WindowManager;
@@ -9,6 +10,8 @@ import re.usto.mosaic.components.IncomingCallFragment;
 import re.usto.mosaic.components.OnCallFragment;
 
 public class CallActivity extends AppCompatActivity {
+
+    public static final String DIALING = "dialing";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,8 +28,13 @@ public class CallActivity extends AppCompatActivity {
             ).commit();
         }
         else if (MosaicIntent.ACTION_MAKE_CALL.equals(getIntent().getAction())) {
+            Bundle bundle = new Bundle();
+            bundle.putBoolean(DIALING, true);
+            OnCallFragment fragment = new OnCallFragment();
+            fragment.setArguments(bundle);
+
             getFragmentManager().beginTransaction().add(
-                    R.id.call_layout, new OnCallFragment()
+                    R.id.call_layout, fragment
             ).commit();
         }
     }
