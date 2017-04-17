@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -36,9 +37,9 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
     private PowerManager.WakeLock mProximityWakeLock;
     private OnCallReceiver mReceiver;
     private boolean mMuteMic = false;
-    private boolean mMuteAudio = false;
+    private boolean mSpeaker = false;
     private ImageView mToggleMuteMic;
-    private ImageView mToggleMuteAudio;
+    private ImageView mToggleSpeaker;
     private TextView mCallStateView;
 
     @Override
@@ -73,7 +74,7 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
                         .addDisconnectedCallAction()
                         .addConfirmedCallAction()
                         .addToggleMuteMicAction()
-                        .addToggleMuteAudioAction()
+                        .addToggleSpeakerAction()
                         .build()
         );
     }
@@ -87,12 +88,11 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
         Button hangupCall = (Button) rootView.findViewById(R.id.hangupCall);
         TextView remoteUriView = (TextView) rootView.findViewById(R.id.callRemoteUri);
         mToggleMuteMic = (ImageView) rootView.findViewById(R.id.toggleMuteMic);
-        mToggleMuteAudio = (ImageView) rootView.findViewById(R.id.toggleMuteAudio);
+        mToggleSpeaker = (ImageView) rootView.findViewById(R.id.toggleSpeaker);
         mCallStateView = (TextView) rootView.findViewById(R.id.callState);
 
         if (mDialing) {
             mToggleMuteMic.setVisibility(View.INVISIBLE);
-            mToggleMuteAudio.setVisibility(View.INVISIBLE);
             mCallStateView.setText(getString(R.string.state_calling));
         }
 
@@ -109,10 +109,10 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
             }
         });
 
-        mToggleMuteAudio.setOnClickListener(new View.OnClickListener() {
+        mToggleSpeaker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().startService(new MosaicIntent().toggleMuteAudio(getActivity()));
+                getActivity().startService(new MosaicIntent().toggleSpeaker(getActivity()));
             }
         });
         return rootView;
@@ -138,7 +138,6 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
                     mDialing = false;
                     mCallStateView.setText("00:00");
                     mToggleMuteMic.setVisibility(View.VISIBLE);
-                    mToggleMuteAudio.setVisibility(View.VISIBLE);
                     break;
 
                 case MosaicIntent.ACTION_TOGGLE_MUTE_MICROPHONE:
@@ -150,12 +149,12 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
                     }
                     break;
 
-                case MosaicIntent.ACTION_TOGGLE_MUTE_AUDIO:
+                case MosaicIntent.ACTION_TOGGLE_SPEAKER:
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        mMuteAudio = !mMuteAudio;
-                        mToggleMuteAudio.setImageDrawable(getActivity().getDrawable(
-                                mMuteAudio ? R.drawable.ic_volume_off_black_24dp
-                                        : R.drawable.ic_volume_up_black_24dp));
+                        mSpeaker = !mSpeaker;
+                        mToggleSpeaker.setImageDrawable(getActivity().getDrawable(
+                                mSpeaker ? R.drawable.ic_volume_up_black_24dp
+                                        : R.drawable.ic_volume_down_black_24dp));
                     }
                     break;
             }
@@ -179,6 +178,11 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onDestroy() {
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mReceiver);
+
+        AudioManager audioManager = (AudioManager)getActivity()
+                .getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager.isSpeakerphoneOn()) audioManager.setSpeakerphoneOn(false);
+
         mProximityWakeLock.release();
         super.onDestroy();
     }

@@ -3,6 +3,7 @@ package re.usto.mosaic.engine;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -120,8 +121,8 @@ public class MosaicService extends BackgroundService {
                 handleMuteMic();
                 break;
 
-            case MosaicIntent.ACTION_TOGGLE_MUTE_AUDIO:
-                handleMuteAudio();
+            case MosaicIntent.ACTION_TOGGLE_SPEAKER:
+                handleSpeaker();
                 break;
         }
     }
@@ -249,11 +250,12 @@ public class MosaicService extends BackgroundService {
         mCall.toggleMuteMic();
     }
 
-    private void handleMuteAudio() {
-        if (mCall == null)
-            throw new IllegalStateException("Can't mute microphone without an active call");
-
-        mCall.toggleMuteAudio();
+    private void handleSpeaker() {
+        AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+        audioManager.setSpeakerphoneOn(!audioManager.isSpeakerphoneOn());
+        LocalBroadcastManager.getInstance(this).sendBroadcast(
+                new MosaicIntent().toggleSpeaker()
+        );
     }
 
     @Override

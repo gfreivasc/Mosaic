@@ -26,7 +26,6 @@ class MosaicCall extends Call {
     private static final String TAG = MosaicCall.class.getSimpleName();
     private MosaicAccount mAccount;
     private boolean mMicMute = false;
-    private boolean mAudioMute = false;
 
     MosaicCall(MosaicAccount account) {
         super(account);
@@ -121,6 +120,9 @@ class MosaicCall extends Call {
                 Log.d(TAG,"CALL DISCONNECTED REASON: " + reason);
 
                 mAccount.getService().stopMediaPlayback();
+
+                if (mMicMute) toggleMuteMic();
+
                 LocalBroadcastManager.getInstance(mAccount.getService()).sendBroadcast(
                         new MosaicIntent().disconnectedCall()
                 );
@@ -183,51 +185,6 @@ class MosaicCall extends Call {
 
         LocalBroadcastManager.getInstance(mAccount.getService()).sendBroadcast(
                 new MosaicIntent().toggleMuteMic()
-        );
-    }
-
-    void toggleMuteAudio() {
-        CallInfo ci = null;
-        try {
-            ci = getInfo();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        if (ci == null || ci.getState() != pjsip_inv_state.PJSIP_INV_STATE_CONFIRMED)
-            return;
-
-        mAudioMute = !mAudioMute;
-
-        for (int i = 0; i < ci.getMedia().size(); i++) {
-            Media media = getMedia(i);
-            CallMediaInfo mediaInfo = ci.getMedia().get(i);
-
-            if (mediaInfo.getType() == pjmedia_type.PJMEDIA_TYPE_AUDIO
-                    && media != null
-                    && mediaInfo.getStatus() == pjsua_call_media_status.PJSUA_CALL_MEDIA_ACTIVE) {
-                AudioMedia audioMedia = AudioMedia.typecastFromMedia(media);
-
-                if (audioMedia == null)
-                    throw new NullPointerException("Could not get audio media");
-
-                try {
-                    AudDevManager mgr = mAccount.getService().getEp().audDevManager();
-
-                    if (mAudioMute) {
-                        audioMedia.stopTransmit(mgr.getPlaybackDevMedia());
-                    } else {
-                        audioMedia.startTransmit(mgr.getPlaybackDevMedia());
-                    }
-
-                } catch (Exception exc) {
-                    Log.e(TAG, "Couldn't manage audio capture transmission", exc);
-                }
-            }
-        }
-
-        LocalBroadcastManager.getInstance(mAccount.getService()).sendBroadcast(
-                new MosaicIntent().toggleMuteAudio()
         );
     }
 

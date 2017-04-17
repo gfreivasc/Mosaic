@@ -49,8 +49,8 @@ public class MosaicIntent {
     public static final String ACTION_TOGGLE_MUTE_MICROPHONE =
             "re.usto.mosaic.TOGGLE_MUTE_MICROPHONE";
 
-    public static final String ACTION_TOGGLE_MUTE_AUDIO =
-            "re.usto.mosaic.TOGGLE_MUTE_AUDIO";
+    public static final String ACTION_TOGGLE_SPEAKER =
+            "re.usto.mosaic.TOGGLE_SPEAKER";
 
     static final String ACTION_PLAY_MEDIA =
             "re.usto.mosaic.PLAY_MEDIA";
@@ -102,8 +102,8 @@ public class MosaicIntent {
             return this;
         }
 
-        public FilterBuilder addToggleMuteAudioAction() {
-            filter.addAction(ACTION_TOGGLE_MUTE_AUDIO);
+        public FilterBuilder addToggleSpeakerAction() {
+            filter.addAction(ACTION_TOGGLE_SPEAKER);
             return this;
         }
 
@@ -129,8 +129,8 @@ public class MosaicIntent {
         return new Intent().setAction(ACTION_TOGGLE_MUTE_MICROPHONE);
     }
 
-    Intent toggleMuteAudio() {
-        return new Intent().setAction(ACTION_TOGGLE_MUTE_AUDIO);
+    Intent toggleSpeaker() {
+        return new Intent().setAction(ACTION_TOGGLE_SPEAKER);
     }
 
     // MosaicService calls
@@ -180,9 +180,9 @@ public class MosaicIntent {
                 .setAction(ACTION_TOGGLE_MUTE_MICROPHONE);
     }
 
-    public Intent toggleMuteAudio(Context context) {
+    public Intent toggleSpeaker(Context context) {
         return new Intent(context, MosaicService.class)
-                .setAction(ACTION_TOGGLE_MUTE_AUDIO);
+                .setAction(ACTION_TOGGLE_SPEAKER);
     }
 
     public Intent playMedia(Context context, @PlaybackService.MediaType int mediaType) {
