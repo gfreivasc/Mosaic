@@ -129,7 +129,7 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case MosaicIntent.ACTION_DISCONNECTED_CALL:
-                    mTimer.cancel();
+                    if (mTimer != null) mTimer.cancel();
                     if (mDismissed) {
                         getActivity().finish();
                     } else {
