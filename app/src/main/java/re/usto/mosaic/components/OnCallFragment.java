@@ -18,6 +18,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import re.usto.mosaic.ExampleCallActivity;
 import re.usto.mosaic.R;
 import re.usto.mosaic.engine.CallActivity;
@@ -41,12 +45,14 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
     private ImageView mToggleMuteMic;
     private ImageView mToggleSpeaker;
     private TextView mCallStateView;
+    private int mTimeCounter = 0;
+    private Timer mTimer;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments().containsKey(CallActivity.DIALING))
+        if (getArguments() != null && getArguments().containsKey(CallActivity.DIALING))
             mDialing = getArguments().getBoolean(CallActivity.DIALING);
 
         PowerManager pm = (PowerManager) getActivity().getSystemService(
@@ -123,6 +129,7 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case MosaicIntent.ACTION_DISCONNECTED_CALL:
+                    mTimer.cancel();
                     if (mDismissed) {
                         getActivity().finish();
                     } else {
@@ -130,14 +137,18 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
                                 getActivity(), PlaybackService.MediaType.DISCONNECTED_TONE
                         ));
                         mDisconnected = true;
-                        mCallStateView.setText(R.string.state_disconnected);
+                        mCallStateView.setText(String.format(
+                                Locale.getDefault(),
+                                getString(R.string.state_disconnected),
+                                mTimeCounter / 60, mTimeCounter % 60));
                         mToggleMuteMic.setVisibility(View.GONE);
                     }
                     break;
 
                 case MosaicIntent.ACTION_CONFIRMED_CALL:
                     mDialing = false;
-                    mCallStateView.setText("00:00");
+                    mTimer = new Timer();
+                    mTimer.scheduleAtFixedRate(mTimerTask, 0, 1000);
                     mToggleMuteMic.setVisibility(View.VISIBLE);
                     break;
 
@@ -161,6 +172,22 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
             }
         }
     }
+
+    private TimerTask mTimerTask = new TimerTask() {
+        @Override
+        public void run() {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mCallStateView.setText(
+                            String.format(Locale.getDefault(),
+                                    "%02d:%02d", mTimeCounter / 60, mTimeCounter % 60)
+                    );
+                    mTimeCounter++;
+                }
+            });
+        }
+    };
 
     @Override
     public void onClick(View v) {

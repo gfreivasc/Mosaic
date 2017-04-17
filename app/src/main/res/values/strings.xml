@@ -22,5 +22,5 @@
     <string name="remote_uri_unknown">Desconhecido</string>
 
     <string name="state_calling">Discando&#8230;</string>
-    <string name="state_disconnected">Chamada terminada</string>
+    <string name="state_disconnected">Chamada terminada (%1$02d:%2$02d)</string>
 </resources>
