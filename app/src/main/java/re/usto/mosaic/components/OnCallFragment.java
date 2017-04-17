@@ -47,6 +47,7 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
     private TextView mCallStateView;
     private int mTimeCounter = 0;
     private Timer mTimer;
+    private AudioManager mAudioManager;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,6 +58,10 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
 
         PowerManager pm = (PowerManager) getActivity().getSystemService(
                 AppCompatActivity.POWER_SERVICE);
+
+        mAudioManager = (AudioManager)getActivity()
+                .getSystemService(Context.AUDIO_SERVICE);
+        if (mAudioManager.isSpeakerphoneOn()) mAudioManager.setSpeakerphoneOn(false);
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
             mProximityWakeLock = pm.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, TAG);
@@ -211,10 +216,7 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
     public void onDestroy() {
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mReceiver);
 
-        AudioManager audioManager = (AudioManager)getActivity()
-                .getSystemService(Context.AUDIO_SERVICE);
-        if (audioManager.isSpeakerphoneOn()) audioManager.setSpeakerphoneOn(false);
-
+        if (mAudioManager.isSpeakerphoneOn()) mAudioManager.setSpeakerphoneOn(false);
         if (mProximityWakeLock.isHeld()) mProximityWakeLock.release();
         super.onDestroy();
     }
