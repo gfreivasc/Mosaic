@@ -162,12 +162,16 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
                     break;
 
                 case MosaicIntent.ACTION_TOGGLE_SPEAKER:
+                    mSpeaker = !mSpeaker;
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        mSpeaker = !mSpeaker;
                         mToggleSpeaker.setImageDrawable(getActivity().getDrawable(
                                 mSpeaker ? R.drawable.ic_volume_up_black_24dp
                                         : R.drawable.ic_volume_down_black_24dp));
                     }
+                    if (mSpeaker)
+                        mProximityWakeLock.release();
+                    else
+                        mProximityWakeLock.acquire();
                     break;
             }
         }
@@ -211,7 +215,7 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
                 .getSystemService(Context.AUDIO_SERVICE);
         if (audioManager.isSpeakerphoneOn()) audioManager.setSpeakerphoneOn(false);
 
-        mProximityWakeLock.release();
+        if (mProximityWakeLock.isHeld()) mProximityWakeLock.release();
         super.onDestroy();
     }
 }
