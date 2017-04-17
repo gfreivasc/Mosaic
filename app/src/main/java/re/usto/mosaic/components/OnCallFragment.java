@@ -131,6 +131,7 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
                         ));
                         mDisconnected = true;
                         mCallStateView.setText(R.string.state_disconnected);
+                        mToggleMuteMic.setVisibility(View.GONE);
                     }
                     break;
 
