@@ -18,13 +18,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import re.usto.mosaic.ExampleCallActivity;
-import re.usto.mosaic.Mosaic;
 import re.usto.mosaic.R;
 import re.usto.mosaic.engine.MosaicIntent;
 import re.usto.mosaic.engine.PlaybackService;
 
 /**
- * Created by gabriel on 03/04/17.
+ * @author gabriel
  */
 
 public class OnCallFragment extends Fragment implements View.OnClickListener {
@@ -35,7 +34,9 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
     private PowerManager.WakeLock mProximityWakeLock;
     private OnCallReceiver mReceiver;
     private boolean mMuteMic = false;
+    private boolean mMuteAudio = false;
     private ImageView mToggleMuteMic;
+    private ImageView mToggleMuteAudio;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -65,6 +66,7 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
                 new MosaicIntent.FilterBuilder()
                         .addDisconnectedCallAction()
                         .addToggleMuteMicAction()
+                        .addToggleMuteAudioAction()
                         .build()
         );
     }
@@ -78,6 +80,7 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
         Button hangupCall = (Button) rootView.findViewById(R.id.hangupCall);
         TextView remoteUriView = (TextView) rootView.findViewById(R.id.callRemoteUri);
         mToggleMuteMic = (ImageView) rootView.findViewById(R.id.toggleMuteMic);
+        mToggleMuteAudio = (ImageView) rootView.findViewById(R.id.toggleMuteAudio);
 
         String remoteUri = ((ExampleCallActivity)getActivity()).getRemoteUri();
         remoteUriView.setText(remoteUri != null ? remoteUri
@@ -89,6 +92,13 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onClick(View v) {
                 getActivity().startService(new MosaicIntent().toggleMuteMic(getActivity()));
+            }
+        });
+
+        mToggleMuteAudio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().startService(new MosaicIntent().toggleMuteAudio(getActivity()));
             }
         });
         return rootView;
@@ -116,6 +126,16 @@ public class OnCallFragment extends Fragment implements View.OnClickListener {
                                 mMuteMic ? R.drawable.ic_mic_off_black_24dp
                                         : R.drawable.ic_mic_black_24dp));
                     }
+                    break;
+
+                case MosaicIntent.ACTION_TOGGLE_MUTE_AUDIO:
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        mMuteAudio = !mMuteAudio;
+                        mToggleMuteAudio.setImageDrawable(getActivity().getDrawable(
+                                mMuteAudio ? R.drawable.ic_volume_off_black_24dp
+                                        : R.drawable.ic_volume_up_black_24dp));
+                    }
+                    break;
             }
         }
     }

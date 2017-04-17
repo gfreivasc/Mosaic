@@ -37,9 +37,19 @@
         android:id="@+id/toggleMuteMic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        app:layout_constraintTop_toBottomOf="@+id/callRemoteUri"
+        app:srcCompat="@drawable/ic_mic_black_24dp"
+        app:layout_constraintLeft_toRightOf="@+id/toggleMuteAudio"
+        android:layout_marginLeft="32dp" />
+
+    <ImageView
+        android:id="@+id/toggleMuteAudio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="32dp"
         android:layout_marginTop="32dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/callRemoteUri"
-        app:srcCompat="@drawable/ic_mic_black_24dp" />
+        app:srcCompat="@drawable/ic_volume_up_black_24dp" />
 </android.support.constraint.ConstraintLayout>

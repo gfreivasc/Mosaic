@@ -119,6 +119,10 @@ public class MosaicService extends BackgroundService {
             case MosaicIntent.ACTION_TOGGLE_MUTE_MICROPHONE:
                 handleMuteMic();
                 break;
+
+            case MosaicIntent.ACTION_TOGGLE_MUTE_AUDIO:
+                handleMuteAudio();
+                break;
         }
     }
 
@@ -243,6 +247,13 @@ public class MosaicService extends BackgroundService {
             throw new IllegalStateException("Can't mute microphone without an active call");
 
         mCall.toggleMuteMic();
+    }
+
+    private void handleMuteAudio() {
+        if (mCall == null)
+            throw new IllegalStateException("Can't mute microphone without an active call");
+
+        mCall.toggleMuteAudio();
     }
 
     @Override
