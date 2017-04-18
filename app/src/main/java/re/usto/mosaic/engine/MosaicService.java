@@ -16,6 +16,7 @@ import org.pjsip.pjsua2.CallOpParam;
 import org.pjsip.pjsua2.Endpoint;
 import org.pjsip.pjsua2.EpConfig;
 import org.pjsip.pjsua2.TransportConfig;
+import org.pjsip.pjsua2.pjmedia_srtp_use;
 import org.pjsip.pjsua2.pjsip_status_code;
 import org.pjsip.pjsua2.pjsip_transport_type_e;
 import org.pjsip.pjsua2.pjsua_stun_use;
@@ -29,8 +30,9 @@ import java.util.Locale;
 public class MosaicService extends BackgroundService {
 
     private static final String TAG = MosaicService.class.getSimpleName();
-    private static final String SIP_PROTOCOL = "sip:";
-    private static final String SIP_SERVER_IP = "192.168.174.106";
+    private static final String SIP_PROTOCOL = "sips:";
+    private static final String SIP_SERVER_IP = "189.85.129.53";
+    private static final String SIP_TLS_PARAM = "transport=TLS";
     private static final int SIP_SERVER_PORT = 5060;
     private static final String SIP_SERVER = SIP_PROTOCOL + SIP_SERVER_IP;
 
@@ -63,7 +65,7 @@ public class MosaicService extends BackgroundService {
         TransportConfig sipTpConfig = new TransportConfig();
         sipTpConfig.setPort(SIP_SERVER_PORT);
         try {
-            mEndpoint.transportCreate(pjsip_transport_type_e.PJSIP_TRANSPORT_UDP, sipTpConfig);
+            mEndpoint.transportCreate(pjsip_transport_type_e.PJSIP_TRANSPORT_TLS, sipTpConfig);
             mEndpoint.libStart();
         }
         catch (Exception e) {
@@ -164,18 +166,17 @@ public class MosaicService extends BackgroundService {
                 userId,
                 SIP_SERVER_IP
         ));
-        accountConfig.getRegConfig().setRegistrarUri(SIP_SERVER);
+        accountConfig.getRegConfig().setRegistrarUri(SIP_SERVER + ";" + SIP_TLS_PARAM);
         AuthCredInfo authCredInfo = new AuthCredInfo("Digest", "*", userId, 0, "4567");
         accountConfig.getSipConfig().getAuthCreds().add(authCredInfo);
-        accountConfig.getNatConfig().setSipStunUse(pjsua_stun_use.PJSUA_STUN_USE_DEFAULT);
-        accountConfig.getNatConfig().setMediaStunUse(pjsua_stun_use.PJSUA_STUN_USE_DEFAULT);
+        accountConfig.getMediaConfig().setSrtpUse(pjmedia_srtp_use.PJMEDIA_SRTP_MANDATORY);
+        accountConfig.getMediaConfig().setSrtpSecureSignaling(1);
 
         mAccount = new MosaicAccount(this);
         try {
             mAccount.create(accountConfig);
         } catch (Exception e) {
-            Log.e(TAG, "Error on registration.");
-            e.printStackTrace();
+            Log.e(TAG, "Error on registration.", e);
         }
     }
 
@@ -195,10 +196,11 @@ public class MosaicService extends BackgroundService {
         }
 
         String destUri = String.format(Locale.US,
-                "%1$s%2$s@%3$s",
+                "%1$s%2$s@%3$s;%4$s",
                 SIP_PROTOCOL,
                 intent.getStringExtra(MosaicIntent.EXTRA_CALL_DESTINY),
-                SIP_SERVER_IP);
+                SIP_SERVER_IP,
+                SIP_TLS_PARAM);
 
         mCall = new MosaicCall(mAccount);
         CallOpParam prm = new CallOpParam(true);
