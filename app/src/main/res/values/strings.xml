@@ -8,12 +8,12 @@
 
     <string name="pref_user_id_title">Ramal</string>
     <string name="pref_user_id_key" translatable="false">pref_userId</string>
-    <string name="pref_user_id_default" translatable="false">2600</string>
+    <string name="pref_user_id_default" translatable="false">3321030</string>
     <string name="pref_user_id_summary">Ramal ao qual o app estará registrado</string>
 
     <string name="pref_target_id_title">Destinatário</string>
     <string name="pref_target_id_key">pref_targetId</string>
-    <string name="pref_target_id_default">2609</string>
+    <string name="pref_target_id_default">3321039</string>
     <string name="pref_target_id_summary">Ramal do destinatário que receberá chamadas</string>
 
     <string name="accept_call">Atender</string>
