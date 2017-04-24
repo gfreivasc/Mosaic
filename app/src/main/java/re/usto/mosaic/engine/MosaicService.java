@@ -166,7 +166,7 @@ public class MosaicService extends BackgroundService {
                 userId,
                 SIP_SERVER_IP
         ));
-        accountConfig.getRegConfig().setRegistrarUri(SIP_SERVER + ";" + SIP_TLS_PARAM);
+        accountConfig.getRegConfig().setRegistrarUri(SIP_SERVER);
         AuthCredInfo authCredInfo = new AuthCredInfo("Digest", "*", userId, 0, "4567");
         accountConfig.getSipConfig().getAuthCreds().add(authCredInfo);
         accountConfig.getMediaConfig().setSrtpUse(pjmedia_srtp_use.PJMEDIA_SRTP_MANDATORY);
@@ -196,11 +196,10 @@ public class MosaicService extends BackgroundService {
         }
 
         String destUri = String.format(Locale.US,
-                "%1$s%2$s@%3$s;%4$s",
+                "%1$s%2$s@%3$s",
                 SIP_PROTOCOL,
                 intent.getStringExtra(MosaicIntent.EXTRA_CALL_DESTINY),
-                SIP_SERVER_IP,
-                SIP_TLS_PARAM);
+                SIP_SERVER_IP);
 
         mCall = new MosaicCall(mAccount);
         CallOpParam prm = new CallOpParam(true);
